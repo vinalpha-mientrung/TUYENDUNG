@@ -3,630 +3,154 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VinAlpha – Ứng Tuyển</title>
+<title>VinAlpha – Phiếu Thông Tin Cá Nhân</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --navy:   #1B2F6E;
-  --navy2:  #142357;
-  --gold:   #F5B800;
-  --gold2:  #E0A800;
-  --white:  #FFFFFF;
-  --bg:     #F4F6FB;
-  --border: #D8DEF0;
-  --muted:  #6B7594;
-  --text:   #1A2340;
-  --red:    #D93025;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1B2F6E;--navy2:#142357;--gold:#F5B800;--gold2:#E0A800;
+  --white:#fff;--bg:#F0F3FA;--border:#C8D0E8;--muted:#6B7594;--text:#1A2340;--red:#D93025;
 }
+body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);min-height:100vh}
+body::before{content:'VinAlpha';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-family:'Montserrat',sans-serif;font-size:clamp(60px,18vw,140px);font-weight:900;color:var(--navy);opacity:0.03;pointer-events:none;z-index:0;white-space:nowrap;letter-spacing:-2px;user-select:none}
 
-body {
-  background: var(--bg);
-  font-family: 'Inter', sans-serif;
-  color: var(--text);
-  min-height: 100vh;
+/* HERO */
+.hero{background:var(--navy);position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-40px;width:320px;height:320px;background:var(--gold);opacity:0.08;border-radius:50%;pointer-events:none}
+.hero-inner{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:32px 20px 28px;display:flex;align-items:flex-start;gap:20px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(245,184,0,0.15);border:1px solid rgba(245,184,0,0.35);color:var(--gold);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:10px}
+.hero-eyebrow::before{content:'';width:6px;height:6px;background:var(--gold);border-radius:50%;animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero h1{font-family:'Montserrat',sans-serif;font-size:clamp(18px,3.8vw,30px);font-weight:900;color:#fff;line-height:1.2;margin-bottom:4px}
+.hero h1 span{color:var(--gold)}
+.hero-khoi{font-family:'Montserrat',sans-serif;font-size:clamp(12px,2.2vw,16px);font-weight:700;color:var(--gold);margin-bottom:10px;display:block}
+.hero-sub{color:rgba(255,255,255,0.5);font-size:13px;font-weight:300;line-height:1.6;margin-bottom:14px}
+.hero-contacts{display:flex;flex-wrap:wrap;gap:8px}
+.hero-contact{display:inline-flex;align-items:center;gap:7px;background:var(--gold);color:var(--navy);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;text-decoration:none}
+.hero-contact svg{width:14px;height:14px}
+.gold-bar{height:4px;background:linear-gradient(90deg,var(--gold) 0%,var(--gold2) 60%,transparent 100%)}
+
+/* FORM WRAP */
+.form-wrap{max-width:900px;margin:0 auto;padding:24px 14px 80px;position:relative;z-index:1}
+
+/* CARD */
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:hidden;box-shadow:0 2px 10px rgba(27,47,110,0.06);animation:fadeUp 0.3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.1s}.card:nth-child(3){animation-delay:.15s}.card:nth-child(4){animation-delay:.2s}.card:nth-child(5){animation-delay:.25s}.card:nth-child(6){animation-delay:.3s}.card:nth-child(7){animation-delay:.35s}.card:nth-child(8){animation-delay:.4s}
+
+/* CARD HEADER */
+.card-header{display:flex;align-items:center;gap:10px;padding:14px 18px;background:linear-gradient(90deg,rgba(27,47,110,0.06) 0%,transparent 100%);border-bottom:2px solid var(--border)}
+.card-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-icon svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card-header h2{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--navy)}
+.card-header .sub{font-size:11px;color:var(--muted);margin-top:1px}
+
+/* ── WORD-STYLE TABLE FORM ── */
+.wt{width:100%;border-collapse:collapse}
+.wt td{border:1px solid var(--border);padding:0;vertical-align:top}
+.wt .lbl{
+  background:#F4F6FB;
+  font-size:11.5px;font-weight:700;color:var(--navy);
+  padding:7px 10px;white-space:nowrap;
+  border-right:1px solid var(--border);
+  min-width:110px;
 }
-
-/* ── WATERMARK ── */
-body::before {
-  content: 'VinAlpha';
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-30deg);
-  font-family: 'Montserrat', sans-serif;
-  font-size: clamp(60px, 18vw, 140px);
-  font-weight: 900;
-  color: var(--navy);
-  opacity: 0.03;
-  pointer-events: none;
-  z-index: 0;
-  white-space: nowrap;
-  letter-spacing: -2px;
-  user-select: none;
+.wt .lbl .req{color:var(--red);margin-left:2px}
+.wt .val{padding:4px 6px}
+.wt .val input,.wt .val select,.wt .val textarea{
+  width:100%;border:none;outline:none;background:transparent;
+  font-family:'Inter',sans-serif;font-size:14px;color:var(--text);
+  padding:5px 7px;line-height:1.4;
 }
-
-/* ── HERO ── */
-.hero {
-  background: var(--navy);
-  position: relative;
-  overflow: hidden;
+.wt .val input:focus,.wt .val select:focus,.wt .val textarea:focus{
+  background:rgba(27,47,110,0.04);border-radius:4px;
 }
-
-.hero::after {
-  content: '';
-  position: absolute;
-  right: -60px; top: -40px;
-  width: 320px; height: 320px;
-  background: var(--gold);
-  opacity: 0.08;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  left: -80px; bottom: -60px;
-  width: 260px; height: 260px;
-  background: var(--gold);
-  opacity: 0.04;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 36px 20px 32px;
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-}
-
-.hero-logo {
-  flex-shrink: 0;
-  width: 90px; height: 90px;
-  background: white;
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  padding: 10px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-  margin-top: 4px;
-}
-
-.hero-logo img {
-  width: 100%; height: 100%;
-  object-fit: contain;
-}
-
-.logo-fallback {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 900;
-  font-size: 22px;
-  color: var(--navy);
-  letter-spacing: -1px;
-}
-
-.hero-text { flex: 1; min-width: 0; }
-
-.hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(245,184,0,0.15);
-  border: 1px solid rgba(245,184,0,0.35);
-  color: var(--gold);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 4px 12px;
-  border-radius: 20px;
-  margin-bottom: 10px;
-}
-
-.hero-eyebrow::before {
-  content: '';
-  width: 6px; height: 6px;
-  background: var(--gold);
-  border-radius: 50%;
-  animation: blink 2s ease infinite;
-}
-
-@keyframes blink {
-  0%,100%{opacity:1} 50%{opacity:0.3}
-}
-
-.hero h1 {
-  font-family: 'Montserrat', sans-serif;
-  font-size: clamp(18px, 3.8vw, 32px);
-  font-weight: 900;
-  color: var(--white);
-  line-height: 1.2;
-  margin-bottom: 4px;
-  letter-spacing: -0.5px;
-}
-
-.hero h1 span { color: var(--gold); }
-
-.hero-khoi {
-  font-family: 'Montserrat', sans-serif;
-  font-size: clamp(13px, 2.5vw, 18px);
-  font-weight: 700;
-  color: var(--gold);
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
-  display: block;
-  text-shadow: 0 2px 8px rgba(245,184,0,0.3);
-}
-
-.hero-sub {
-  color: rgba(255,255,255,0.55);
-  font-size: 13px;
-  font-weight: 300;
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-
-.hero-contact {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--gold);
-  color: var(--navy);
-  font-family: 'Montserrat', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 9px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-}
-
-.hero-contact svg { width: 15px; height: 15px; }
-
-/* Gold bar divider */
-.gold-bar {
-  height: 4px;
-  background: linear-gradient(90deg, var(--gold) 0%, var(--gold2) 60%, transparent 100%);
-}
-
-/* ── FORM WRAPPER ── */
-.form-wrap {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 28px 16px 72px;
-  position: relative;
-  z-index: 1;
-}
-
-/* ── SECTION CARD ── */
-.card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px 24px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 12px rgba(27,47,110,0.05);
-}
-
-.section-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 22px;
-  padding-bottom: 14px;
-  border-bottom: 2px solid var(--bg);
-}
-
-.section-icon {
-  width: 38px; height: 38px;
-  background: linear-gradient(135deg, var(--navy), var(--navy2));
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-
-.section-icon svg { width: 18px; height: 18px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-.section-head h2 {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--navy);
-}
-
-.section-head .sub {
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 400;
-  margin-top: 2px;
-}
-
-/* ── GRID ── */
-.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-@media(max-width:580px){
-  .g2 { grid-template-columns: 1fr; gap: 12px; }
-  .g3 { grid-template-columns: 1fr; gap: 12px; }
-}
-.full { grid-column: 1/-1; }
-
-/* ── FIELD ── */
-.field { display: flex; flex-direction: column; gap: 5px; }
-
-label {
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-label .req { color: var(--red); margin-left: 3px; }
-
-input[type=text], input[type=tel], input[type=email],
-input[type=date], input[type=number], select, textarea {
-  width: 100%;
-  padding: 11px 13px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  color: var(--text);
-  background: #fff;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(27,47,110,0.1);
-}
-
-input::placeholder, textarea::placeholder { color: #BCC3D8; }
-textarea { resize: vertical; min-height: 88px; }
-
-/* ── DATE DROPDOWNS ── */
-.date-row {
-  display: grid;
-  grid-template-columns: 1.2fr 1.5fr 2fr;
-  gap: 8px;
-}
-
-.date-row .sel-wrap select {
-  font-size: 14px;
-  padding: 11px 10px;
-}
-
-/* ── SELECT WRAP ── */
-.sel-wrap { position: relative; }
-.sel-wrap::after {
-  content: '▾';
-  position: absolute;
-  right: 11px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted); font-size: 12px;
-  pointer-events: none;
-}
-
-/* ── RADIO / CHECK ── */
-.radio-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
-
-.r-opt {
-  display: flex; align-items: center; gap: 7px;
-  cursor: pointer;
-  padding: 9px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-size: 13.5px;
-  color: var(--text);
-  transition: all 0.15s;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.r-opt:has(input:checked) {
-  border-color: var(--navy);
-  background: rgba(27,47,110,0.05);
-  color: var(--navy);
-  font-weight: 600;
-}
-
-.r-opt input { accent-color: var(--navy); width: 15px; height: 15px; flex-shrink: 0; padding: 0; border: none; box-shadow: none; }
-
-/* ── POSITION GROUPS ── */
-.pos-groups { display: flex; flex-direction: column; gap: 12px; }
-
-.pos-group-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: var(--navy);
-  padding: 9px 12px;
-  background: linear-gradient(90deg, rgba(27,47,110,0.07) 0%, transparent 100%);
-  border-left: 3px solid var(--navy);
-  border-radius: 0 8px 8px 0;
-  margin-bottom: 6px;
-}
-
-.pos-counter {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px; height: 20px;
-  background: var(--gold);
-  color: var(--navy);
-  font-size: 11px;
-  font-weight: 800;
-  border-radius: 10px;
-  padding: 0 6px;
-  margin-left: auto;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.pos-counter.show { opacity: 1; }
-
-.pos-scroll {
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  max-height: 200px;
-  overflow-y: auto;
-  background: white;
-  -webkit-overflow-scrolling: touch;
-}
-
-.pos-scroll::-webkit-scrollbar { width: 4px; }
-.pos-scroll::-webkit-scrollbar-track { background: #f0f2fa; }
-.pos-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-.pos-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  cursor: pointer;
-  transition: background 0.12s;
-  border-bottom: 1px solid #F0F2FA;
-  font-size: 14px;
-  color: var(--text);
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  min-height: 44px;
-}
-
-.pos-item:last-child { border-bottom: none; }
-.pos-item:active { background: #F4F6FB; }
-
-.pos-item:has(input:checked) {
-  background: rgba(245,184,0,0.09);
-  color: var(--navy);
-  font-weight: 600;
-}
-
-.pos-item input {
-  accent-color: var(--gold2);
-  width: 18px; height: 18px; flex-shrink: 0;
-  padding: 0; border: none; box-shadow: none;
-  cursor: pointer;
-}
-
-.pos-tick {
-  margin-left: auto;
-  font-size: 14px;
-  opacity: 0;
-  transition: opacity 0.15s;
-  color: var(--gold2);
-}
-.pos-item:has(input:checked) .pos-tick { opacity: 1; }
-
-/* ── DỰ ÁN GROUPS ── */
-.project-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.project-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 16px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-size: 14px;
-  color: var(--text);
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  min-height: 48px;
-  background: white;
-}
-
-.project-item:has(input:checked) {
-  border-color: var(--navy);
-  background: rgba(27,47,110,0.04);
-  color: var(--navy);
-  font-weight: 600;
-}
-
-.project-item input {
-  accent-color: var(--navy);
-  width: 18px; height: 18px; flex-shrink: 0;
-  padding: 0; border: none; box-shadow: none;
-  cursor: pointer;
-}
-
-.project-icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.project-info { flex: 1; min-width: 0; }
-.project-name { font-size: 14px; font-weight: 500; }
-.project-loc { font-size: 12px; color: var(--muted); margin-top: 1px; font-weight: 400; }
-
-.project-item:has(input:checked) .project-loc { color: var(--navy); opacity: 0.65; }
-
-/* Ô nhập khác */
-.project-other-input {
-  display: none;
-  margin-top: 8px;
-}
-.project-other-input.show { display: block; }
-.project-other-input input {
-  border-color: var(--gold2);
-}
-.project-other-input input:focus {
-  border-color: var(--navy);
-}
-
-/* ── FILE UPLOAD ── */
-.file-zone {
-  border: 2px dashed var(--border);
-  border-radius: 12px;
-  padding: 24px 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  position: relative;
-}
-
-.file-zone:active {
-  border-color: var(--navy);
-  background: rgba(27,47,110,0.03);
-}
-
-.file-zone input[type=file] {
-  position: absolute; inset: 0;
-  opacity: 0; cursor: pointer;
-  width: 100%; height: 100%;
-  padding: 0; border: none; box-shadow: none;
-}
-
-.file-icon { font-size: 28px; margin-bottom: 6px; }
-.file-zone p { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
-.file-zone strong { color: var(--navy); }
-.file-zone small { font-size: 11.5px; color: #BBC2D6; display: block; margin-top: 4px; }
-#fileName { margin-top: 10px; font-size: 13px; color: var(--navy); font-weight: 600; display: none; }
-
-/* ── NOTE BOX ── */
-.note-box {
-  background: rgba(245,184,0,0.08);
-  border: 1px solid rgba(245,184,0,0.35);
-  border-left: 4px solid var(--gold);
-  border-radius: 10px;
-  padding: 12px 14px;
-  font-size: 13px;
-  color: #6B5800;
-  line-height: 1.6;
-  margin-top: 4px;
-  display: flex; gap: 10px; align-items: flex-start;
-}
-.note-box .ni { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-
-/* ── SUBMIT ── */
-.submit-zone { text-align: center; margin-top: 8px; }
-
-.btn-submit {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
-  color: white;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  padding: 16px 48px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.2s;
-  box-shadow: 0 6px 24px rgba(27,47,110,0.3);
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  max-width: 360px;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.btn-submit::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0;
-  width: 5px; height: 100%;
-  background: var(--gold);
-}
-
-.btn-submit:active { transform: scale(0.98); }
-.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-
-.req-note { margin-top: 12px; font-size: 12px; color: var(--muted); }
-.req-note span { color: var(--red); }
-
-/* ── TOAST ── */
-#toast {
-  display: none;
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%);
-  padding: 13px 24px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  z-index: 9999;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-  max-width: 88vw; text-align: center;
-}
-
-/* ── FOOTER ── */
-.footer {
-  background: var(--navy);
-  color: rgba(255,255,255,0.5);
-  text-align: center;
-  font-size: 12px;
-  padding: 18px 16px;
-}
-.footer strong { color: var(--gold); }
-
-@keyframes fadeUp {
-  from{opacity:0;transform:translateY(14px)}
-  to{opacity:1;transform:translateY(0)}
-}
-.card { animation: fadeUp 0.35s ease both; }
-.card:nth-child(1){animation-delay:0.05s}
-.card:nth-child(2){animation-delay:0.1s}
-.card:nth-child(3){animation-delay:0.15s}
-.card:nth-child(4){animation-delay:0.2s}
-.card:nth-child(5){animation-delay:0.25s}
-.card:nth-child(6){animation-delay:0.3s}
-
-/* ── MOBILE TWEAKS ── */
-@media(max-width:480px) {
-  .hero-inner { gap: 14px; padding: 24px 16px 24px; }
-  .hero-logo { width: 72px; height: 72px; border-radius: 12px; }
-  .card { padding: 18px 16px; border-radius: 12px; }
-  .section-head { margin-bottom: 18px; }
-  .btn-submit { font-size: 14px; padding: 15px 32px; }
-  .pos-item { font-size: 13.5px; padding: 10px 12px; }
-  .project-item { padding: 11px 14px; }
-  .date-row { grid-template-columns: 1fr 1fr 1.4fr; gap: 6px; }
-  .date-row .sel-wrap select { font-size: 13px; padding: 10px 8px; }
-  .r-opt { padding: 8px 12px; font-size: 13px; }
+.wt .val textarea{resize:vertical;min-height:60px}
+.wt .val select{appearance:none;-webkit-appearance:none;cursor:pointer;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236B7594'/%3E%3C/svg%3E") no-repeat right 8px center}
+.wt .val input::placeholder,.wt .val textarea::placeholder{color:#C0C8DC}
+.wt .section-row td{background:linear-gradient(90deg,#E8EDF8,#EEF2FA);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:800;color:var(--navy);padding:8px 12px;letter-spacing:0.3px;border-bottom:2px solid var(--navy)}
+
+/* Radio/check trong bảng */
+.wt .val .radio-inline{display:flex;flex-wrap:wrap;gap:6px;padding:5px 7px}
+.wt .val .r-opt{display:flex;align-items:center;gap:5px;cursor:pointer;padding:5px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);transition:all 0.12s;user-select:none;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.wt .val .r-opt:has(input:checked){border-color:var(--navy);background:rgba(27,47,110,0.06);color:var(--navy);font-weight:600}
+.wt .val .r-opt input{accent-color:var(--navy);width:14px;height:14px;flex-shrink:0;padding:0;border:none;box-shadow:none}
+
+/* Date row trong bảng */
+.wt .val .date-inline{display:flex;gap:4px;padding:4px 6px}
+.wt .val .date-inline select{flex:1;font-size:13px;padding:4px 6px}
+
+/* POSITION GROUPS */
+.pos-groups{padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.pos-group-label{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--navy);padding:7px 10px;background:linear-gradient(90deg,rgba(27,47,110,0.07) 0%,transparent 100%);border-left:3px solid var(--navy);border-radius:0 7px 7px 0;margin-bottom:5px}
+.pos-counter{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;background:var(--gold);color:var(--navy);font-size:10px;font-weight:800;border-radius:9px;padding:0 5px;margin-left:auto;opacity:0;transition:opacity 0.2s}
+.pos-counter.show{opacity:1}
+.pos-scroll{border:1.5px solid var(--border);border-radius:9px;overflow:hidden;max-height:190px;overflow-y:auto;background:#fff;-webkit-overflow-scrolling:touch}
+.pos-scroll::-webkit-scrollbar{width:3px}
+.pos-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.pos-item{display:flex;align-items:center;gap:10px;padding:10px 13px;cursor:pointer;border-bottom:1px solid #F0F2FA;font-size:13.5px;color:var(--text);user-select:none;-webkit-tap-highlight-color:transparent;min-height:42px;transition:background 0.1s}
+.pos-item:last-child{border-bottom:none}
+.pos-item:has(input:checked){background:rgba(245,184,0,0.09);color:var(--navy);font-weight:600}
+.pos-item input{accent-color:var(--gold2);width:17px;height:17px;flex-shrink:0;padding:0;border:none;box-shadow:none;cursor:pointer}
+.pos-tick{margin-left:auto;font-size:13px;opacity:0;color:var(--gold2);transition:opacity 0.12s}
+.pos-item:has(input:checked) .pos-tick{opacity:1}
+
+/* GPLX */
+.gplx-section{display:none;margin:0 16px 12px;padding:14px;background:#F4F6FB;border-radius:10px;border:1.5px solid var(--border)}
+.gplx-section.show{display:block}
+.gplx-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:10px;letter-spacing:0.4px;text-transform:uppercase}
+
+/* PROJECT */
+.project-list{padding:12px 16px;display:flex;flex-direction:column;gap:7px}
+.project-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:13.5px;color:var(--text);user-select:none;-webkit-tap-highlight-color:transparent;background:#fff;transition:all 0.12s}
+.project-item:has(input:checked){border-color:var(--navy);background:rgba(27,47,110,0.04);color:var(--navy);font-weight:600}
+.project-item input{accent-color:var(--navy);width:17px;height:17px;flex-shrink:0;padding:0;border:none;box-shadow:none;cursor:pointer}
+.project-icon{font-size:17px;flex-shrink:0}
+.project-info{flex:1}
+.project-name{font-size:13.5px;font-weight:500}
+.project-loc{font-size:11.5px;color:var(--muted);margin-top:1px}
+.project-item:has(input:checked) .project-loc{color:var(--navy);opacity:0.7}
+.project-other-input{display:none;padding:0 16px 12px}
+.project-other-input.show{display:block}
+.project-other-input input{width:100%;padding:9px 12px;border:1.5px solid var(--gold2);border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);outline:none}
+
+/* NOTE */
+.note-box{margin:12px 16px 0;background:rgba(245,184,0,0.08);border:1px solid rgba(245,184,0,0.35);border-left:4px solid var(--gold);border-radius:9px;padding:11px 13px;font-size:12.5px;color:#6B5800;line-height:1.6;display:flex;gap:9px;align-items:flex-start}
+.note-box .ni{font-size:14px;flex-shrink:0;margin-top:1px}
+
+/* HIDDEN WRAP */
+.hidden-wrap{display:none;padding:0 0 4px}
+.hidden-wrap.show{display:block}
+
+/* SUBMIT */
+.submit-zone{text-align:center;margin-top:10px;display:flex;flex-direction:column;align-items:center;gap:11px}
+.btn-submit{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:#fff;font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.4px;padding:15px 44px;border:none;border-radius:12px;cursor:pointer;box-shadow:0 6px 22px rgba(27,47,110,0.3);position:relative;overflow:hidden;width:100%;max-width:420px;justify-content:center;-webkit-tap-highlight-color:transparent;transition:transform 0.15s}
+.btn-submit::before{content:'';position:absolute;left:0;top:0;width:5px;height:100%;background:var(--gold)}
+.btn-submit:active{transform:scale(0.98)}
+.btn-submit:disabled{opacity:0.6;cursor:not-allowed}
+.btn-word{display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--navy);border:2px solid var(--navy);font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;padding:14px 38px;border-radius:12px;cursor:pointer;width:100%;max-width:420px;justify-content:center;-webkit-tap-highlight-color:transparent;transition:all 0.2s}
+.btn-word:hover{background:var(--navy);color:#fff}
+.btn-word:active{transform:scale(0.98)}
+.btn-word:disabled{opacity:0.6;cursor:not-allowed}
+.req-note{font-size:11.5px;color:var(--muted);margin-top:2px}
+.req-note span{color:var(--red)}
+
+/* TOAST */
+#toast{display:none;position:fixed;bottom:22px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:9px;font-size:13.5px;font-family:'Inter',sans-serif;font-weight:500;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,0.2);max-width:88vw;text-align:center}
+
+/* FOOTER */
+.footer{background:var(--navy);color:rgba(255,255,255,0.5);text-align:center;font-size:12px;padding:18px 16px;line-height:1.8}
+.footer strong{color:var(--gold)}
+
+/* MOBILE */
+@media(max-width:480px){
+  .hero-inner{padding:22px 14px}
+  .card-header{padding:12px 14px}
+  .wt .lbl{font-size:11px;padding:6px 8px;min-width:90px}
+  .wt .val input,.wt .val select,.wt .val textarea{font-size:13px}
+  .btn-submit,.btn-word{font-size:13px;padding:13px 28px}
 }
 </style>
 </head>
@@ -635,598 +159,784 @@ textarea { resize: vertical; min-height: 88px; }
 <!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
-    <div class="hero-text">
+    <div class="hero-text" style="flex:1">
       <div class="hero-eyebrow">Đang tuyển dụng</div>
-      <h1>Công ty Cổ phần<br>Đầu tư &amp; Thi công<br>Hạ tầng VinAlpha</h1>
+      <h1>Công ty Cổ phần Đầu tư &amp; Thi công Hạ tầng <span>VinAlpha</span></h1>
       <span class="hero-khoi">— Khối Thi Công Miền Trung —</span>
       <p class="hero-sub">Chúng tôi đang tìm kiếm những cá nhân tài năng, tâm huyết để cùng xây dựng những công trình hạ tầng vững chắc.</p>
-      <a href="tel:0967626510" class="hero-contact">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.1 2.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-        0967 626 510 – Mr. Văn Bản
-      </a>
+      <div class="hero-contacts">
+        <a href="tel:0967626510" class="hero-contact">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.1 2.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Mr. Văn Bản – 0967 626 510
+        </a>
+        <a href="tel:0794491413" class="hero-contact" style="background:rgba(245,184,0,0.85)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.1 2.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Ms. Nhung – 0794 491 413
+        </a>
+      </div>
     </div>
   </div>
 </div>
 <div class="gold-bar"></div>
 
-<!-- FORM -->
 <div class="form-wrap">
 
-  <!-- SECTION 1: Thông tin cá nhân -->
-  <div class="card">
-    <div class="section-head">
-      <div class="section-icon">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      </div>
-      <div>
-        <h2>Thông Tin Cá Nhân</h2>
-        <div class="sub">Vui lòng điền chính xác để chúng tôi liên hệ</div>
-      </div>
-    </div>
-
-    <div class="g2">
-      <div class="field">
-        <label>Họ và tên đệm <span class="req">*</span></label>
-        <input id="ho" type="text" placeholder="Nguyễn Văn">
-      </div>
-      <div class="field">
-        <label>Tên <span class="req">*</span></label>
-        <input id="ten" type="text" placeholder="An">
-      </div>
-
-      <!-- Ngày sinh — 3 dropdown -->
-      <div class="field">
-        <label>Ngày sinh <span class="req">*</span></label>
-        <div class="date-row">
-          <div class="sel-wrap">
-            <select id="ngaySinhNgay">
-              <option value="">Ngày</option>
-            </select>
-          </div>
-          <div class="sel-wrap">
-            <select id="ngaySinhThang">
-              <option value="">Tháng</option>
-              <option value="01">Tháng 1</option><option value="02">Tháng 2</option>
-              <option value="03">Tháng 3</option><option value="04">Tháng 4</option>
-              <option value="05">Tháng 5</option><option value="06">Tháng 6</option>
-              <option value="07">Tháng 7</option><option value="08">Tháng 8</option>
-              <option value="09">Tháng 9</option><option value="10">Tháng 10</option>
-              <option value="11">Tháng 11</option><option value="12">Tháng 12</option>
-            </select>
-          </div>
-          <div class="sel-wrap">
-            <select id="ngaySinhNam">
-              <option value="">Năm</option>
-            </select>
-          </div>
+<!-- ═══ CARD 1: THÔNG TIN CÁ NHÂN ═══ -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+    <div><h2>I. Thông Tin Cá Nhân</h2><div class="sub">Điền chính xác theo CCCD/CMND</div></div>
+  </div>
+  <div style="padding:0 0 8px">
+  <table class="wt">
+    <tr>
+      <td class="lbl">Họ và tên đệm<span class="req">*</span></td>
+      <td class="val"><input id="ho" type="text" placeholder="Nguyễn Văn"></td>
+      <td class="lbl">Tên<span class="req">*</span></td>
+      <td class="val"><input id="ten" type="text" placeholder="An"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Ngày sinh<span class="req">*</span></td>
+      <td class="val">
+        <div class="date-inline">
+          <select id="ngaySinhNgay"><option value="">Ngày</option></select>
+          <select id="ngaySinhThang"><option value="">Tháng</option><option value="01">T.1</option><option value="02">T.2</option><option value="03">T.3</option><option value="04">T.4</option><option value="05">T.5</option><option value="06">T.6</option><option value="07">T.7</option><option value="08">T.8</option><option value="09">T.9</option><option value="10">T.10</option><option value="11">T.11</option><option value="12">T.12</option></select>
+          <select id="ngaySinhNam"><option value="">Năm</option></select>
         </div>
-      </div>
-
-      <div class="field">
-        <label>Giới tính <span class="req">*</span></label>
-        <div class="radio-row">
+      </td>
+      <td class="lbl">Nơi sinh</td>
+      <td class="val"><input id="noiSinh" type="text" placeholder="Tỉnh/thành nơi sinh"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Giới tính<span class="req">*</span></td>
+      <td class="val">
+        <div class="radio-inline">
           <label class="r-opt"><input type="radio" name="gt" value="Nam"> Nam</label>
           <label class="r-opt"><input type="radio" name="gt" value="Nữ"> Nữ</label>
-          <label class="r-opt"><input type="radio" name="gt" value="Khác"> Khác</label>
         </div>
-      </div>
-
-      <div class="field">
-        <label>Số CCCD / CMND <span class="req">*</span></label>
-        <input id="cccd" type="text" placeholder="012345678901" maxlength="12" inputmode="numeric">
-      </div>
-
-      <!-- Ngày cấp — 3 dropdown -->
-      <div class="field">
-        <label>Ngày cấp</label>
-        <div class="date-row">
-          <div class="sel-wrap">
-            <select id="ngayCapNgay">
-              <option value="">Ngày</option>
-            </select>
-          </div>
-          <div class="sel-wrap">
-            <select id="ngayCapThang">
-              <option value="">Tháng</option>
-              <option value="01">Tháng 1</option><option value="02">Tháng 2</option>
-              <option value="03">Tháng 3</option><option value="04">Tháng 4</option>
-              <option value="05">Tháng 5</option><option value="06">Tháng 6</option>
-              <option value="07">Tháng 7</option><option value="08">Tháng 8</option>
-              <option value="09">Tháng 9</option><option value="10">Tháng 10</option>
-              <option value="11">Tháng 11</option><option value="12">Tháng 12</option>
-            </select>
-          </div>
-          <div class="sel-wrap">
-            <select id="ngayCapNam">
-              <option value="">Năm</option>
-            </select>
-          </div>
+      </td>
+      <td class="lbl">Hôn nhân<span class="req">*</span></td>
+      <td class="val">
+        <div class="radio-inline">
+          <label class="r-opt"><input type="radio" name="hn" value="Độc thân"> Độc thân</label>
+          <label class="r-opt"><input type="radio" name="hn" value="Đã kết hôn"> Đã kết hôn</label>
+          <label class="r-opt"><input type="radio" name="hn" value="Ly dị"> Ly dị</label>
         </div>
-      </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">Dân tộc</td>
+      <td class="val"><input id="danToc" type="text" placeholder="Kinh"></td>
+      <td class="lbl">Tôn giáo</td>
+      <td class="val"><input id="tonGiao" type="text" placeholder="Không / Phật giáo..."></td>
+    </tr>
+    <tr>
+      <td class="lbl">Chiều cao (cm)</td>
+      <td class="val"><input id="chieuCao" type="number" placeholder="170"></td>
+      <td class="lbl">Cân nặng (kg)</td>
+      <td class="val"><input id="canNang" type="number" placeholder="65"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Số CCCD/CMND<span class="req">*</span></td>
+      <td class="val"><input id="cccd" type="text" placeholder="012345678901" maxlength="12" inputmode="numeric"></td>
+      <td class="lbl">Ngày cấp</td>
+      <td class="val">
+        <div class="date-inline">
+          <select id="ngayCapNgay"><option value="">Ngày</option></select>
+          <select id="ngayCapThang"><option value="">Tháng</option><option value="01">T.1</option><option value="02">T.2</option><option value="03">T.3</option><option value="04">T.4</option><option value="05">T.5</option><option value="06">T.6</option><option value="07">T.7</option><option value="08">T.8</option><option value="09">T.9</option><option value="10">T.10</option><option value="11">T.11</option><option value="12">T.12</option></select>
+          <select id="ngayCapNam"><option value="">Năm</option></select>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">Nơi cấp CCCD</td>
+      <td class="val" colspan="3"><input id="noiCap" type="text" placeholder="Cục Cảnh sát QLHC về TTXH – Bộ Công An"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Hộ chiếu số</td>
+      <td class="val"><input id="hoChieu" type="text" placeholder="B1234567 (nếu có)"></td>
+      <td class="lbl">Ngày hết hạn HC</td>
+      <td class="val">
+        <div class="date-inline">
+          <select id="hcNgay"><option value="">Ngày</option></select>
+          <select id="hcThang"><option value="">Tháng</option><option value="01">T.1</option><option value="02">T.2</option><option value="03">T.3</option><option value="04">T.4</option><option value="05">T.5</option><option value="06">T.6</option><option value="07">T.7</option><option value="08">T.8</option><option value="09">T.9</option><option value="10">T.10</option><option value="11">T.11</option><option value="12">T.12</option></select>
+          <select id="hcNam"><option value="">Năm</option></select>
+        </div>
+      </td>
+    </tr>
+  </table>
+  </div>
+</div>
 
-      <div class="field full">
-        <label>Nơi cấp</label>
-        <input id="noiCap" type="text" placeholder="Cục Cảnh sát QLHC về TTXH – Bộ Công An">
+<!-- ═══ CARD 2: LIÊN LẠC & ĐỊA CHỈ ═══ -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+    <div><h2>II. Liên Lạc &amp; Địa Chỉ</h2><div class="sub">Thông tin liên hệ và địa chỉ cư trú</div></div>
+  </div>
+  <div style="padding:0 0 8px">
+  <table class="wt">
+    <tr>
+      <td class="lbl">Di động<span class="req">*</span></td>
+      <td class="val"><input id="sdt" type="tel" placeholder="0901 234 567" inputmode="tel"></td>
+      <td class="lbl">ĐT nhà riêng</td>
+      <td class="val"><input id="sdtNha" type="tel" placeholder="0236 123 456" inputmode="tel"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Email</td>
+      <td class="val" colspan="3"><input id="email" type="email" placeholder="example@gmail.com" inputmode="email"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Hộ khẩu thường trú<span class="req">*</span></td>
+      <td class="val" colspan="3"><input id="hoKhau" type="text" placeholder="Địa chỉ trên hộ khẩu (sau sáp nhập)"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Địa chỉ hiện tại<span class="req">*</span></td>
+      <td class="val" colspan="3"><input id="diaChi" type="text" placeholder="Số nhà, tên đường, phường/xã"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Quận / Huyện</td>
+      <td class="val"><input id="quan" type="text" placeholder="Quận 1"></td>
+      <td class="lbl">Tỉnh / TP<span class="req">*</span></td>
+      <td class="val">
+        <select id="tinh">
+          <option value="" disabled selected>-- Chọn --</option>
+          <option>Hà Nội</option><option>TP. Hồ Chí Minh</option><option>Đà Nẵng</option>
+          <option>Khánh Hòa</option><option>Cần Thơ</option><option>Hải Phòng</option>
+          <option>Bình Dương</option><option>Đồng Nai</option><option>An Giang</option>
+          <option>Bà Rịa – Vũng Tàu</option><option>Bắc Giang</option><option>Bắc Ninh</option>
+          <option>Bến Tre</option><option>Bình Định</option><option>Bình Phước</option>
+          <option>Bình Thuận</option><option>Cà Mau</option><option>Cao Bằng</option>
+          <option>Đắk Lắk</option><option>Đắk Nông</option><option>Điện Biên</option>
+          <option>Đồng Tháp</option><option>Gia Lai</option><option>Hà Giang</option>
+          <option>Hà Nam</option><option>Hà Tĩnh</option><option>Hải Dương</option>
+          <option>Hậu Giang</option><option>Hòa Bình</option><option>Hưng Yên</option>
+          <option>Kiên Giang</option><option>Kon Tum</option><option>Lai Châu</option>
+          <option>Lâm Đồng</option><option>Lạng Sơn</option><option>Lào Cai</option>
+          <option>Long An</option><option>Nam Định</option><option>Nghệ An</option>
+          <option>Ninh Bình</option><option>Ninh Thuận</option><option>Phú Thọ</option>
+          <option>Phú Yên</option><option>Quảng Bình</option><option>Quảng Nam</option>
+          <option>Quảng Ngãi</option><option>Quảng Ninh</option><option>Quảng Trị</option>
+          <option>Sóc Trăng</option><option>Sơn La</option><option>Tây Ninh</option>
+          <option>Thái Bình</option><option>Thái Nguyên</option><option>Thanh Hóa</option>
+          <option>Thừa Thiên Huế</option><option>Tiền Giang</option><option>Trà Vinh</option>
+          <option>Tuyên Quang</option><option>Vĩnh Long</option><option>Vĩnh Phúc</option><option>Yên Bái</option>
+        </select>
+      </td>
+    </tr>
+    <tr><td class="lbl" style="background:#E8EDF8;font-family:Montserrat,sans-serif;font-size:11px;font-weight:800;color:var(--navy)" colspan="4">👤 NGƯỜI LIÊN LẠC KHẨN CẤP</td></tr>
+    <tr>
+      <td class="lbl">Họ tên<span class="req">*</span></td>
+      <td class="val"><input id="llHoTen" type="text" placeholder="Nguyễn Thị B"></td>
+      <td class="lbl">Di động<span class="req">*</span></td>
+      <td class="val"><input id="llSdt" type="tel" placeholder="0901 234 567" inputmode="tel"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Mối quan hệ<span class="req">*</span></td>
+      <td class="val" colspan="3"><input id="llQuanHe" type="text" placeholder="Vợ / Chồng / Bố / Mẹ..."></td>
+    </tr>
+  </table>
+  </div>
+</div>
+
+<!-- ═══ CARD 3: TÀI CHÍNH ═══ -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+    <div><h2>III. Thông Tin Tài Chính</h2><div class="sub">BHXH, thuế và tài khoản ngân hàng</div></div>
+  </div>
+  <div style="padding:0 0 8px">
+  <table class="wt">
+    <tr>
+      <td class="lbl">Số sổ BHXH</td>
+      <td class="val"><input id="bhxh" type="text" placeholder="1234567890"></td>
+      <td class="lbl">Tình trạng BHXH</td>
+      <td class="val">
+        <select id="bhxhTT"><option value="">-- Chọn --</option><option>Đang đóng</option><option>Đã đóng</option><option>Chưa đóng</option></select>
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">Mã số thuế TNCN</td>
+      <td class="val"><input id="mst" type="text" placeholder="0123456789"></td>
+      <td class="lbl">Giảm trừ gia cảnh</td>
+      <td class="val"><input id="mstTT" type="text" placeholder="Bản thân / Người phụ thuộc..."></td>
+    </tr>
+    <tr>
+      <td class="lbl">TK Techcombank</td>
+      <td class="val" colspan="3"><input id="tkTech" type="text" placeholder="19012345678901 (ưu tiên)"></td>
+    </tr>
+    <tr>
+      <td class="lbl">TK ngân hàng khác</td>
+      <td class="val"><input id="tkKhac" type="text" placeholder="(nếu không có Techcombank)"></td>
+      <td class="lbl">Ngân hàng – CN</td>
+      <td class="val"><input id="nganHang" type="text" placeholder="Vietcombank – CN Khánh Hòa"></td>
+    </tr>
+  </table>
+  </div>
+</div>
+
+<!-- ═══ CARD 4: HỌC VẤN & KINH NGHIỆM ═══ -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+    <div><h2>IV. Học Vấn &amp; Kinh Nghiệm</h2><div class="sub">Trình độ và kinh nghiệm làm việc</div></div>
+  </div>
+  <div style="padding:0 0 8px">
+  <table class="wt">
+    <tr>
+      <td class="lbl">Trình độ học vấn<span class="req">*</span></td>
+      <td class="val">
+        <select id="hocVan"><option value="">-- Chọn --</option><option>Tiến sĩ</option><option>Thạc sĩ</option><option>Đại học</option><option>Cao đẳng</option><option>Trung cấp</option><option>THPT</option><option>THCS</option><option>Tiểu học</option></select>
+      </td>
+      <td class="lbl">Chuyên ngành</td>
+      <td class="val"><input id="chuyenNganh" type="text" placeholder="Xây dựng, Trắc địa..."></td>
+    </tr>
+    <tr>
+      <td class="lbl">Tên trường</td>
+      <td class="val" colspan="3"><input id="tenTruong" type="text" placeholder="VD: ĐH Bách khoa Đà Nẵng"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Bằng cấp / Chứng chỉ</td>
+      <td class="val" colspan="3"><input id="bangCap" type="text" placeholder="Kỹ sư xây dựng, Chứng chỉ ATLĐ..."></td>
+    </tr>
+    <tr>
+      <td class="lbl">Số năm kinh nghiệm<span class="req">*</span></td>
+      <td class="val">
+        <select id="kinhNghiem"><option value="">-- Chọn --</option><option>Chưa có kinh nghiệm</option><option>Dưới 1 năm</option><option>1 – 2 năm</option><option>2 – 3 năm</option><option>3 – 5 năm</option><option>5 – 7 năm</option><option>7 – 10 năm</option><option>Trên 10 năm</option></select>
+      </td>
+      <td class="lbl">Kỹ năng nổi bật</td>
+      <td class="val"><input id="kyNang" type="text" placeholder="AutoCAD, quản lý nhóm..."></td>
+    </tr>
+    <tr>
+      <td class="lbl">Mô tả kinh nghiệm<br><span style="font-weight:400;font-size:10px;color:var(--muted)">(chi tiết)</span></td>
+      <td class="val" colspan="3"><textarea id="moTaKN" placeholder="Tên công ty – Chức danh – Thời gian – Mô tả công việc đã làm..."></textarea></td>
+    </tr>
+  </table>
+  </div>
+</div>
+
+<!-- ═══ CARD 5: VỊ TRÍ ỨNG TUYỂN ═══ -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+    <div><h2>V. Vị Trí Ứng Tuyển</h2><div class="sub">Chọn vị trí phù hợp (có thể chọn nhiều)</div></div>
+  </div>
+  <div class="pos-groups">
+    <div>
+      <div class="pos-group-label">🔷 Đội trưởng / Trưởng nhóm <span class="pos-counter" id="cnt1">0</span></div>
+      <div class="pos-scroll" id="grp1">
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Đội trưởng thi công" onchange="updateCount('grp1','cnt1');checkLaiXe()"> Đội trưởng thi công <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng nhóm An toàn Lao động" onchange="updateCount('grp1','cnt1');checkLaiXe()"> Trưởng nhóm An toàn Lao động <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng nhóm Kiểm soát chất lượng" onchange="updateCount('grp1','cnt1');checkLaiXe()"> Trưởng nhóm Kiểm soát chất lượng <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng nhóm Kiểm soát khối lượng" onchange="updateCount('grp1','cnt1');checkLaiXe()"> Trưởng nhóm Kiểm soát khối lượng <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng nhóm kho" onchange="updateCount('grp1','cnt1');checkLaiXe()"> Trưởng nhóm kho <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng nhóm trắc đạc" onchange="updateCount('grp1','cnt1');checkLaiXe()"> Trưởng nhóm trắc đạc <span class="pos-tick">✓</span></label>
+      </div>
+    </div>
+    <div>
+      <div class="pos-group-label">🔶 Chuyên viên / Nhân viên <span class="pos-counter" id="cnt2">0</span></div>
+      <div class="pos-scroll" id="grp2">
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên điều phối máy móc thiết bị" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Chuyên viên điều phối máy móc thiết bị <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Hành chính" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Chuyên viên Hành chính <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Kiểm soát chất lượng" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Chuyên viên Kiểm soát chất lượng <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Kiểm soát khối lượng" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Chuyên viên Kiểm soát khối lượng <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Kỹ thuật hiện trường" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Chuyên viên Kỹ thuật hiện trường <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Nội nghiệp" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Chuyên viên Nội nghiệp <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên ShopDrawing – Biện pháp thi công" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Chuyên viên ShopDrawing – Biện pháp thi công <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Trắc đạc" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Chuyên viên Trắc đạc <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên An toàn lao động" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Chuyên viên An toàn lao động <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Thủ kho" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Thủ kho <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Nhân viên Lấy mẫu thí nghiệm" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Nhân viên Lấy mẫu thí nghiệm <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Nhân viên Trắc đạc" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Nhân viên Trắc đạc <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Nhân viên Hành chính" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Nhân viên Hành chính <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Nhân viên kho" onchange="updateCount('grp2','cnt2');checkLaiXe()"> Nhân viên kho <span class="pos-tick">✓</span></label>
+      </div>
+    </div>
+    <div>
+      <div class="pos-group-label">🚧 Lái xe / Lái máy / Cơ giới <span class="pos-counter" id="cnt3">0</span></div>
+      <div class="pos-scroll" id="grp3">
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng ca" onchange="updateCount('grp3','cnt3');checkLaiXe()"> Trưởng ca <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Lái xe" onchange="updateCount('grp3','cnt3');checkLaiXe()"> Lái xe <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Lái máy" onchange="updateCount('grp3','cnt3');checkLaiXe()"> Lái máy <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Tổ trưởng cơ giới" onchange="updateCount('grp3','cnt3');checkLaiXe()"> Tổ trưởng cơ giới <span class="pos-tick">✓</span></label>
+      </div>
+      <!-- GPLX -->
+      <div class="gplx-section" id="gplxSection">
+        <div class="gplx-title">🪪 Thông tin Giấy phép lái xe / lái máy</div>
+        <table class="wt">
+          <tr>
+            <td class="lbl">Loại xe / Loại máy<span class="req">*</span></td>
+            <td class="val" colspan="3"><input id="loaiXe" type="text" placeholder="VD: Xe ben 10T, Máy xúc, Cẩu tháp..."></td>
+          </tr>
+          <tr>
+            <td class="lbl">Hạng GPLX</td>
+            <td class="val" colspan="3">
+              <div class="radio-inline">
+                <label class="r-opt"><input type="radio" name="hangGplx" value="A1"> A1</label>
+                <label class="r-opt"><input type="radio" name="hangGplx" value="A2"> A2</label>
+                <label class="r-opt"><input type="radio" name="hangGplx" value="B1"> B1</label>
+                <label class="r-opt"><input type="radio" name="hangGplx" value="B2"> B2</label>
+                <label class="r-opt"><input type="radio" name="hangGplx" value="C"> C</label>
+                <label class="r-opt"><input type="radio" name="hangGplx" value="D"> D</label>
+                <label class="r-opt"><input type="radio" name="hangGplx" value="E"> E</label>
+                <label class="r-opt"><input type="radio" name="hangGplx" value="Máy công trình"> Máy CT</label>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="lbl">Số GPLX</td>
+            <td class="val"><input id="soGplx" type="text" placeholder="0123456789"></td>
+            <td class="lbl">Tình trạng</td>
+            <td class="val"><select id="ttGplx"><option value="">-- Chọn --</option><option>Còn hạn</option><option>Hết hạn</option><option>Chưa có</option></select></td>
+          </tr>
+          <tr>
+            <td class="lbl">Ngày cấp GPLX</td>
+            <td class="val">
+              <div class="date-inline">
+                <select id="gplxNgay"><option value="">Ngày</option></select>
+                <select id="gplxThang"><option value="">Tháng</option><option value="01">T.1</option><option value="02">T.2</option><option value="03">T.3</option><option value="04">T.4</option><option value="05">T.5</option><option value="06">T.6</option><option value="07">T.7</option><option value="08">T.8</option><option value="09">T.9</option><option value="10">T.10</option><option value="11">T.11</option><option value="12">T.12</option></select>
+                <select id="gplxNam"><option value="">Năm</option></select>
+              </div>
+            </td>
+            <td class="lbl">Nơi cấp GPLX</td>
+            <td class="val"><input id="noiCapGplx" type="text" placeholder="Cục CSGT – Bộ Công An"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="pos-group-label">👷 Công nhân cơ hữu <span class="pos-counter" id="cnt4">0</span></div>
+      <div class="pos-scroll" id="grp4">
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Tổ trưởng công nhân cơ hữu" onchange="updateCount('grp4','cnt4');checkLaiXe()"> Tổ trưởng công nhân cơ hữu <span class="pos-tick">✓</span></label>
+        <label class="pos-item"><input type="checkbox" name="vitri" value="Công nhân cơ hữu" onchange="updateCount('grp4','cnt4');checkLaiXe()"> Công nhân cơ hữu <span class="pos-tick">✓</span></label>
       </div>
     </div>
   </div>
-
-  <!-- SECTION 2: Liên lạc & Địa chỉ -->
-  <div class="card">
-    <div class="section-head">
-      <div class="section-icon">
-        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      </div>
-      <div>
-        <h2>Liên Lạc &amp; Địa Chỉ</h2>
-        <div class="sub">Thông tin liên hệ và địa chỉ cư trú</div>
-      </div>
-    </div>
-
-    <div class="g2">
-      <div class="field">
-        <label>Số điện thoại <span class="req">*</span></label>
-        <input id="sdt" type="tel" placeholder="0901 234 567" inputmode="tel">
-      </div>
-      <div class="field">
-        <label>Email</label>
-        <input id="email" type="email" placeholder="example@gmail.com" inputmode="email">
-      </div>
-      <div class="field full">
-        <label>Địa chỉ hiện tại <span class="req">*</span></label>
-        <input id="diaChi" type="text" placeholder="Số nhà, tên đường, phường/xã">
-      </div>
-      <div class="field">
-        <label>Quận / Huyện</label>
-        <input id="quan" type="text" placeholder="Quận 1">
-      </div>
-      <div class="field">
-        <label>Tỉnh / Thành phố <span class="req">*</span></label>
-        <div class="sel-wrap">
-          <select id="tinh">
-            <option value="" disabled selected>-- Chọn tỉnh/thành --</option>
-            <option>Hà Nội</option><option>TP. Hồ Chí Minh</option><option>Đà Nẵng</option>
-            <option>Khánh Hòa</option><option>Cần Thơ</option><option>Hải Phòng</option>
-            <option>Bình Dương</option><option>Đồng Nai</option><option>An Giang</option>
-            <option>Bà Rịa – Vũng Tàu</option><option>Bắc Giang</option><option>Bắc Ninh</option>
-            <option>Bến Tre</option><option>Bình Định</option><option>Bình Phước</option>
-            <option>Bình Thuận</option><option>Cà Mau</option><option>Cao Bằng</option>
-            <option>Đắk Lắk</option><option>Đắk Nông</option><option>Điện Biên</option>
-            <option>Đồng Tháp</option><option>Gia Lai</option><option>Hà Giang</option>
-            <option>Hà Nam</option><option>Hà Tĩnh</option><option>Hải Dương</option>
-            <option>Hậu Giang</option><option>Hòa Bình</option><option>Hưng Yên</option>
-            <option>Kiên Giang</option><option>Kon Tum</option><option>Lai Châu</option>
-            <option>Lâm Đồng</option><option>Lạng Sơn</option><option>Lào Cai</option>
-            <option>Long An</option><option>Nam Định</option><option>Nghệ An</option>
-            <option>Ninh Bình</option><option>Ninh Thuận</option><option>Phú Thọ</option>
-            <option>Phú Yên</option><option>Quảng Bình</option><option>Quảng Nam</option>
-            <option>Quảng Ngãi</option><option>Quảng Ninh</option><option>Quảng Trị</option>
-            <option>Sóc Trăng</option><option>Sơn La</option><option>Tây Ninh</option>
-            <option>Thái Bình</option><option>Thái Nguyên</option><option>Thanh Hóa</option>
-            <option>Thừa Thiên Huế</option><option>Tiền Giang</option><option>Trà Vinh</option>
-            <option>Tuyên Quang</option><option>Vĩnh Long</option><option>Vĩnh Phúc</option>
-            <option>Yên Bái</option>
-          </select>
+  <div style="padding:12px 16px 4px">
+  <table class="wt">
+    <tr>
+      <td class="lbl">Mức lương mong muốn</td>
+      <td class="val"><input id="luong" type="text" placeholder="VD: 15–20 triệu, Thỏa thuận"></td>
+      <td class="lbl">Thời gian bắt đầu</td>
+      <td class="val">
+        <div class="radio-inline">
+          <label class="r-opt"><input type="radio" name="tg" value="Ngay lập tức"> Ngay</label>
+          <label class="r-opt"><input type="radio" name="tg" value="Sau 1 tuần"> 1 tuần</label>
+          <label class="r-opt"><input type="radio" name="tg" value="Sau 2 tuần"> 2 tuần</label>
+          <label class="r-opt"><input type="radio" name="tg" value="Sau 1 tháng"> 1 tháng</label>
         </div>
-      </div>
-      <div class="field full">
-        <label>Quê quán</label>
-        <input id="queQuan" type="text" placeholder="Tỉnh/thành phố gốc">
-      </div>
-    </div>
+      </td>
+    </tr>
+  </table>
   </div>
+</div>
 
-  <!-- SECTION 3: Học vấn & Kinh nghiệm -->
-  <div class="card">
-    <div class="section-head">
-      <div class="section-icon">
-        <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-      </div>
-      <div>
-        <h2>Học Vấn &amp; Kinh Nghiệm</h2>
-        <div class="sub">Trình độ chuyên môn và kinh nghiệm làm việc</div>
-      </div>
-    </div>
-
-    <div class="g2">
-      <div class="field">
-        <label>Trình độ học vấn <span class="req">*</span></label>
-        <div class="sel-wrap">
-          <select id="hocVan">
-            <option value="" disabled selected>-- Chọn trình độ --</option>
-            <option>Trung học phổ thông (THPT)</option>
-            <option>Trung cấp / Cao đẳng</option>
-            <option>Đại học</option>
-            <option>Sau đại học (Thạc sĩ / Tiến sĩ)</option>
-          </select>
-        </div>
-      </div>
-      <div class="field">
-        <label>Chuyên ngành</label>
-        <input id="chuyenNganh" type="text" placeholder="VD: Xây dựng, Trắc địa...">
-      </div>
-      <div class="field">
-        <label>Bằng cấp / Chứng chỉ chuyên môn</label>
-        <input id="bangCap" type="text" placeholder="VD: Kỹ sư xây dựng, Chứng chỉ ATLĐ...">
-      </div>
-      <div class="field">
-        <label>Số năm kinh nghiệm <span class="req">*</span></label>
-        <div class="sel-wrap">
-          <select id="kinhNghiem">
-            <option value="" disabled selected>-- Chọn --</option>
-            <option>Chưa có kinh nghiệm</option>
-            <option>Dưới 1 năm</option>
-            <option>1 – 2 năm</option>
-            <option>3 – 5 năm</option>
-            <option>5 – 10 năm</option>
-            <option>Trên 10 năm</option>
-          </select>
-        </div>
-      </div>
-      <div class="field full">
-        <label>Mô tả kinh nghiệm làm việc</label>
-        <textarea id="moTaKN" placeholder="Tóm tắt các công việc và dự án đã từng tham gia..."></textarea>
-      </div>
-      <div class="field full">
-        <label>Kỹ năng nổi bật</label>
-        <input id="kyNang" type="text" placeholder="VD: Đọc bản vẽ, AutoCAD, quản lý nhóm...">
-      </div>
-    </div>
+<!-- ═══ CARD 6: DỰ ÁN ═══ -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+    <div><h2>VI. Dự Án Mong Muốn</h2><div class="sub">Chọn dự án bạn muốn tham gia (có thể chọn nhiều)</div></div>
   </div>
-
-  <!-- SECTION 4: Vị trí ứng tuyển -->
-  <div class="card">
-    <div class="section-head">
-      <div class="section-icon">
-        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-      </div>
-      <div>
-        <h2>Vị Trí Ứng Tuyển</h2>
-        <div class="sub">Chọn vị trí phù hợp (có thể chọn nhiều)</div>
-      </div>
-    </div>
-
-    <div class="pos-groups">
-      <!-- Nhóm 1 -->
-      <div>
-        <div class="pos-group-label">🔷 Đội trưởng / Trưởng nhóm <span class="pos-counter" id="cnt1">0</span></div>
-        <div class="pos-scroll" id="grp1">
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Đội trưởng thi công" onchange="updateCount('grp1','cnt1')"> Đội trưởng thi công <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng nhóm An toàn Lao động" onchange="updateCount('grp1','cnt1')"> Trưởng nhóm An toàn Lao động <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng nhóm Kiểm soát chất lượng" onchange="updateCount('grp1','cnt1')"> Trưởng nhóm Kiểm soát chất lượng <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng nhóm Kiểm soát khối lượng" onchange="updateCount('grp1','cnt1')"> Trưởng nhóm Kiểm soát khối lượng <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng nhóm kho" onchange="updateCount('grp1','cnt1')"> Trưởng nhóm kho <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng nhóm trắc đạc" onchange="updateCount('grp1','cnt1')"> Trưởng nhóm trắc đạc <span class="pos-tick">✓</span></label>
-        </div>
-      </div>
-
-      <!-- Nhóm 2 -->
-      <div>
-        <div class="pos-group-label">🔶 Chuyên viên / Nhân viên <span class="pos-counter" id="cnt2">0</span></div>
-        <div class="pos-scroll" id="grp2">
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên điều phối máy móc thiết bị" onchange="updateCount('grp2','cnt2')"> Chuyên viên điều phối máy móc thiết bị <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Hành chính" onchange="updateCount('grp2','cnt2')"> Chuyên viên Hành chính <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Kiểm soát chất lượng" onchange="updateCount('grp2','cnt2')"> Chuyên viên Kiểm soát chất lượng <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Kiểm soát khối lượng" onchange="updateCount('grp2','cnt2')"> Chuyên viên Kiểm soát khối lượng <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Kỹ thuật hiện trường" onchange="updateCount('grp2','cnt2')"> Chuyên viên Kỹ thuật hiện trường <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Nội nghiệp" onchange="updateCount('grp2','cnt2')"> Chuyên viên Nội nghiệp <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên ShopDrawing – Biện pháp thi công" onchange="updateCount('grp2','cnt2')"> Chuyên viên ShopDrawing – Biện pháp thi công <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên Trắc đạc" onchange="updateCount('grp2','cnt2')"> Chuyên viên Trắc đạc <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Chuyên viên An toàn lao động" onchange="updateCount('grp2','cnt2')"> Chuyên viên An toàn lao động <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Thủ kho" onchange="updateCount('grp2','cnt2')"> Thủ kho <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Nhân viên Lấy mẫu thí nghiệm" onchange="updateCount('grp2','cnt2')"> Nhân viên Lấy mẫu thí nghiệm <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Nhân viên Trắc đạc" onchange="updateCount('grp2','cnt2')"> Nhân viên Trắc đạc <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Nhân viên Hành chính" onchange="updateCount('grp2','cnt2')"> Nhân viên Hành chính <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Nhân viên kho" onchange="updateCount('grp2','cnt2')"> Nhân viên kho <span class="pos-tick">✓</span></label>
-        </div>
-      </div>
-
-      <!-- Nhóm 3 -->
-      <div>
-        <div class="pos-group-label">🚧 Lái xe / Lái máy / Cơ giới <span class="pos-counter" id="cnt3">0</span></div>
-        <div class="pos-scroll" id="grp3">
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Trưởng ca" onchange="updateCount('grp3','cnt3')"> Trưởng ca <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Lái xe, lái máy" onchange="updateCount('grp3','cnt3')"> Lái xe, lái máy <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Tổ trưởng cơ giới" onchange="updateCount('grp3','cnt3')"> Tổ trưởng cơ giới <span class="pos-tick">✓</span></label>
-        </div>
-      </div>
-
-      <!-- Nhóm 4 -->
-      <div>
-        <div class="pos-group-label">👷 Công nhân cơ hữu <span class="pos-counter" id="cnt4">0</span></div>
-        <div class="pos-scroll" id="grp4">
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Tổ trưởng công nhân cơ hữu" onchange="updateCount('grp4','cnt4')"> Tổ trưởng công nhân cơ hữu <span class="pos-tick">✓</span></label>
-          <label class="pos-item"><input type="checkbox" name="vitri" value="Công nhân cơ hữu" onchange="updateCount('grp4','cnt4')"> Công nhân cơ hữu <span class="pos-tick">✓</span></label>
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-top:20px" class="field">
-      <label>Mức lương mong muốn</label>
-      <input id="luong" type="text" placeholder="VD: 15 – 20 triệu, hoặc Thỏa thuận">
-    </div>
-
-    <div style="margin-top:16px" class="field">
-      <label>Thời gian có thể bắt đầu</label>
-      <div class="radio-row">
-        <label class="r-opt"><input type="radio" name="tg" value="Ngay lập tức"> Ngay lập tức</label>
-        <label class="r-opt"><input type="radio" name="tg" value="Sau 1 tuần"> Sau 1 tuần</label>
-        <label class="r-opt"><input type="radio" name="tg" value="Sau 2 tuần"> Sau 2 tuần</label>
-        <label class="r-opt"><input type="radio" name="tg" value="Sau 1 tháng"> Sau 1 tháng</label>
-      </div>
-    </div>
+  <div class="project-list">
+    <label class="project-item"><input type="checkbox" name="duan" value="Vũng Áng – Hà Tĩnh"><span class="project-icon">🏗️</span><div class="project-info"><div class="project-name">Vũng Áng</div><div class="project-loc">📍 Hà Tĩnh</div></div><span class="pos-tick">✓</span></label>
+    <label class="project-item"><input type="checkbox" name="duan" value="Làng Vân – Đà Nẵng"><span class="project-icon">🏗️</span><div class="project-info"><div class="project-name">Làng Vân</div><div class="project-loc">📍 Đà Nẵng</div></div><span class="pos-tick">✓</span></label>
+    <label class="project-item"><input type="checkbox" name="duan" value="Cam Lâm – Cam Ranh – Khánh Hòa"><span class="project-icon">🏗️</span><div class="project-info"><div class="project-name">Cam Lâm, Cam Ranh</div><div class="project-loc">📍 Khánh Hòa</div></div><span class="pos-tick">✓</span></label>
+    <label class="project-item"><input type="checkbox" name="duan" value="Khác" onchange="toggleDuAnKhac(this)"><span class="project-icon">✏️</span><div class="project-info"><div class="project-name">Khác</div><div class="project-loc">Nhập tên dự án bên dưới</div></div><span class="pos-tick">✓</span></label>
   </div>
-
-  <!-- SECTION 5: Dự án mong muốn -->
-  <div class="card">
-    <div class="section-head">
-      <div class="section-icon">
-        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      </div>
-      <div>
-        <h2>Dự Án Mong Muốn Làm Việc</h2>
-        <div class="sub">Chọn dự án bạn muốn tham gia (có thể chọn nhiều)</div>
-      </div>
-    </div>
-
-    <div class="project-list">
-      <label class="project-item">
-        <input type="checkbox" name="duan" value="Vũng Áng – Hà Tĩnh">
-        <span class="project-icon">🏗️</span>
-        <div class="project-info">
-          <div class="project-name">Vũng Áng</div>
-          <div class="project-loc">📍 Hà Tĩnh</div>
-        </div>
-        <span class="pos-tick">✓</span>
-      </label>
-
-      <label class="project-item">
-        <input type="checkbox" name="duan" value="Làng Vân – Đà Nẵng">
-        <span class="project-icon">🏗️</span>
-        <div class="project-info">
-          <div class="project-name">Làng Vân</div>
-          <div class="project-loc">📍 Đà Nẵng</div>
-        </div>
-        <span class="pos-tick">✓</span>
-      </label>
-
-      <label class="project-item">
-        <input type="checkbox" name="duan" value="Cam Lâm – Cam Ranh – Khánh Hòa">
-        <span class="project-icon">🏗️</span>
-        <div class="project-info">
-          <div class="project-name">Cam Lâm, Cam Ranh</div>
-          <div class="project-loc">📍 Khánh Hòa</div>
-        </div>
-        <span class="pos-tick">✓</span>
-      </label>
-
-      <label class="project-item">
-        <input type="checkbox" name="duan" value="Khác" onchange="toggleDuAnKhac(this)">
-        <span class="project-icon">✏️</span>
-        <div class="project-info">
-          <div class="project-name">Khác</div>
-          <div class="project-loc">Nhập tên dự án bên dưới</div>
-        </div>
-        <span class="pos-tick">✓</span>
-      </label>
-    </div>
-
-    <div class="project-other-input" id="duanKhacWrap">
-      <input id="duanKhac" type="text" placeholder="Nhập tên dự án hoặc địa điểm bạn mong muốn...">
-    </div>
+  <div class="project-other-input" id="duanKhacWrap">
+    <input id="duanKhac" type="text" placeholder="Nhập tên dự án hoặc địa điểm bạn mong muốn...">
   </div>
+</div>
 
-  <!-- SECTION 6: CV & Ghi chú -->
-  <div class="card">
-    <div class="section-head">
-      <div class="section-icon">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      </div>
-      <div>
-        <h2>CV &amp; Thông Tin Thêm</h2>
-        <div class="sub">Upload CV nếu có — không bắt buộc</div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Tải lên CV / Hồ sơ <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(không bắt buộc)</span></label>
-      <div class="file-zone" onclick="document.getElementById('cvFile').click()">
-        <input type="file" id="cvFile" accept=".pdf,.doc,.docx,.jpg,.png" onchange="showFileName(this)">
-        <div class="file-icon">📎</div>
-        <p><strong>Bấm để chọn file</strong> hoặc kéo thả vào đây</p>
-        <small>Định dạng: PDF, Word, JPG, PNG — Tối đa 5MB</small>
-        <div id="fileName"></div>
-      </div>
-    </div>
-
-    <div class="field" style="margin-top:16px">
-      <label>Giới thiệu bản thân / Ghi chú thêm</label>
-      <textarea id="ghiChu" placeholder="Điểm mạnh, lý do muốn ứng tuyển, hoặc bất kỳ thông tin nào bạn muốn chia sẻ..."></textarea>
-    </div>
-
-    <div class="note-box" style="margin-top:14px">
-      <span class="ni">🔒</span>
-      <span>Thông tin của bạn được bảo mật tuyệt đối và chỉ dùng cho mục đích tuyển dụng. Mọi thắc mắc vui lòng liên hệ <strong>Mr. Văn Bản – 0967 626 510</strong>.</span>
-    </div>
+<!-- ═══ CARD 7: QUAN HỆ & KÊNH ═══ -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+    <div><h2>VII. Quan Hệ &amp; Kênh Biết Đến</h2><div class="sub">Người thân tại VinAlpha và kênh tìm hiểu</div></div>
   </div>
-
-  <!-- SUBMIT -->
-  <div class="submit-zone">
-    <button class="btn-submit" id="btnSubmit" onclick="guiDon()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
-      <span id="btnTxt">Nộp Đơn Ứng Tuyển</span>
-    </button>
-    <div class="req-note">Các trường có dấu <span>*</span> là bắt buộc điền</div>
+  <div style="padding:0 0 8px">
+  <table class="wt">
+    <tr>
+      <td class="lbl">Người thân tại VinAlpha?</td>
+      <td class="val" colspan="3">
+        <div class="radio-inline">
+          <label class="r-opt"><input type="radio" name="nguoiThan" value="Có" onchange="toggleWrap('nguoiThanWrap',true)"> Có</label>
+          <label class="r-opt"><input type="radio" name="nguoiThan" value="Không" onchange="toggleWrap('nguoiThanWrap',false)"> Không</label>
+        </div>
+      </td>
+    </tr>
+    <tr id="nguoiThanWrap" style="display:none">
+      <td class="lbl">Họ tên – Chức danh – Đơn vị – Quan hệ</td>
+      <td class="val" colspan="3"><textarea id="nguoiThanInfo" placeholder="Nguyễn Văn A – Đội trưởng – Ban thi công Cam Ranh – Anh ruột"></textarea></td>
+    </tr>
+    <tr>
+      <td class="lbl">Từng làm tại VinGroup?</td>
+      <td class="val" colspan="3">
+        <div class="radio-inline">
+          <label class="r-opt"><input type="radio" name="vingroup" value="Có" onchange="toggleWrap('vingroupWrap',true)"> Có</label>
+          <label class="r-opt"><input type="radio" name="vingroup" value="Không" onchange="toggleWrap('vingroupWrap',false)"> Không</label>
+        </div>
+      </td>
+    </tr>
+    <tr id="vingroupWrap" style="display:none">
+      <td class="lbl">Họ tên – Chức danh – Đơn vị – Thời gian</td>
+      <td class="val" colspan="3"><textarea id="vingroupInfo" placeholder="Nguyễn Văn A – Kỹ sư – Vinhomes Central Park – 2019–2022"></textarea></td>
+    </tr>
+    <tr>
+      <td class="lbl">Người tham khảo</td>
+      <td class="val" colspan="3"><textarea id="nguoiThamKhao" placeholder="Họ tên – Chức danh – Đơn vị – SĐT / Email – Mối quan hệ" style="min-height:48px"></textarea></td>
+    </tr>
+    <tr>
+      <td class="lbl">Biết đến qua kênh nào?<span class="req">*</span></td>
+      <td class="val" colspan="3">
+        <div class="radio-inline">
+          <label class="r-opt"><input type="radio" name="kenh" value="Web tuyển dụng"> 🌐 Web</label>
+          <label class="r-opt"><input type="radio" name="kenh" value="Mạng xã hội (Zalo/FB)"> 📱 Zalo/FB</label>
+          <label class="r-opt"><input type="radio" name="kenh" value="Người giới thiệu" onchange="toggleWrap('nguoiGTWrap',true)"> 👤 Người giới thiệu</label>
+          <label class="r-opt"><input type="radio" name="kenh" value="Tự tìm đến" onchange="toggleWrap('nguoiGTWrap',false)"> 🚶 Tự tìm đến</label>
+        </div>
+      </td>
+    </tr>
+    <tr id="nguoiGTWrap" style="display:none">
+      <td class="lbl">Tên người giới thiệu</td>
+      <td class="val" colspan="3"><input id="nguoiGT" type="text" placeholder="Họ tên – Mối quan hệ"></td>
+    </tr>
+    <tr>
+      <td class="lbl">Giới thiệu bản thân / Ghi chú</td>
+      <td class="val" colspan="3"><textarea id="ghiChu" placeholder="Điểm mạnh, lý do muốn ứng tuyển, thông tin thêm..."></textarea></td>
+    </tr>
+  </table>
   </div>
+  <div class="note-box">
+    <span class="ni">🔒</span>
+    <span>Thông tin của bạn được bảo mật tuyệt đối và chỉ dùng cho mục đích tuyển dụng.<br>
+    Mọi thắc mắc: <strong>Mr. Văn Bản – 0967 626 510</strong> &nbsp;|&nbsp; <strong>Ms. Nhung – 0794 491 413</strong><br>
+    <em style="font-size:11.5px">Sau khi nộp đơn, vui lòng gửi CV qua Zalo/Email để chúng tôi xem xét.</em></span>
+  </div>
+  <div style="height:12px"></div>
+</div>
+
+<!-- SUBMIT -->
+<div class="submit-zone">
+  <button class="btn-submit" id="btnSubmit" onclick="guiDon()">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+    <span id="btnTxt">Nộp Đơn Ứng Tuyển</span>
+  </button>
+  <button class="btn-word" id="btnWord" onclick="taiWord()">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="15" x2="12" y2="19"/><polyline points="9 16 12 19 15 16"/></svg>
+    <span id="btnWordTxt">Tải Phiếu Word (.docx)</span>
+  </button>
+  <div class="req-note">Các trường có dấu <span>*</span> là bắt buộc điền</div>
+</div>
 
 </div><!-- end form-wrap -->
-
-<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- FOOTER -->
 <div class="footer">
   <strong>Công ty Cổ phần Đầu tư và Thi công Hạ tầng VinAlpha</strong><br>
-  Khối Thi Công Miền Trung &nbsp;|&nbsp; Liên hệ tuyển dụng: <strong>Mr. Văn Bản – 0967 626 510</strong>
+  Khối Thi Công Miền Trung &nbsp;|&nbsp;
+  Tuyển dụng: <strong>Mr. Văn Bản – 0967 626 510</strong> &nbsp;|&nbsp; <strong>Ms. Nhung – 0794 491 413</strong>
 </div>
 
 <script>
-// ── Điền dropdown ngày ──
-function fillDays(selectId) {
-  const sel = document.getElementById(selectId);
-  for (let i = 1; i <= 31; i++) {
-    const o = document.createElement('option');
-    o.value = String(i).padStart(2, '0');
-    o.textContent = 'Ngày ' + i;
-    sel.appendChild(o);
-  }
+// ── DROPDOWNS ──
+function fillDays(id){const s=document.getElementById(id);for(let i=1;i<=31;i++){const o=document.createElement('option');o.value=String(i).padStart(2,'0');o.textContent=i;s.appendChild(o);}}
+function fillYears(id,from,to){const s=document.getElementById(id);for(let y=to;y>=from;y--){const o=document.createElement('option');o.value=y;o.textContent=y;s.appendChild(o);}}
+['ngaySinhNgay','ngayCapNgay','hcNgay','gplxNgay'].forEach(fillDays);
+fillYears('ngaySinhNam',1950,2010);
+fillYears('ngayCapNam',2000,2026);
+fillYears('hcNam',2024,2040);
+fillYears('gplxNam',2000,2026);
+
+function getDate(n,t,y){const nd=document.getElementById(n).value,th=document.getElementById(t).value,nam=document.getElementById(y).value;return(!nd||!th||!nam)?'':(nd+'/'+th+'/'+nam);}
+function getVal(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+
+// ── TOGGLES ──
+function toggleWrap(id,show){const el=document.getElementById(id);if(el)el.style.display=show?'table-row':'none';}
+function checkLaiXe(){
+  const lx=[...document.querySelectorAll('input[name="vitri"]:checked')].some(c=>['Lái xe','Lái máy','Trưởng ca','Tổ trưởng cơ giới'].includes(c.value));
+  document.getElementById('gplxSection').classList.toggle('show',lx);
 }
+function toggleDuAnKhac(cb){const w=document.getElementById('duanKhacWrap');w.classList.toggle('show',cb.checked);if(!cb.checked)document.getElementById('duanKhac').value='';}
 
-function fillYears(selectId, from, to) {
-  const sel = document.getElementById(selectId);
-  for (let y = to; y >= from; y--) {
-    const o = document.createElement('option');
-    o.value = y;
-    o.textContent = y;
-    sel.appendChild(o);
-  }
-}
+// Kênh radio – toggle người GT
+document.querySelectorAll('input[name="kenh"]').forEach(r=>{
+  r.addEventListener('change',function(){toggleWrap('nguoiGTWrap',this.value==='Người giới thiệu');});
+});
 
-fillDays('ngaySinhNgay');
-fillDays('ngayCapNgay');
-fillYears('ngaySinhNam', 1950, 2010);
-fillYears('ngayCapNam', 2000, 2026);
+// ── ĐẾM VỊ TRÍ ──
+function updateCount(grpId,cntId){const n=document.getElementById(grpId).querySelectorAll('input:checked').length;const c=document.getElementById(cntId);c.textContent=n;c.classList.toggle('show',n>0);}
 
-// ── Dự án Khác ──
-function toggleDuAnKhac(cb) {
-  const wrap = document.getElementById('duanKhacWrap');
-  wrap.classList.toggle('show', cb.checked);
-  if (!cb.checked) document.getElementById('duanKhac').value = '';
-}
+// ── TOAST ──
+function toast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'#1B2F6E';t.style.color='#fff';t.style.display='block';setTimeout(()=>t.style.display='none',4500);}
 
-// ── Đếm checkbox vị trí ──
-function updateCount(grpId, cntId) {
-  const grp = document.getElementById(grpId);
-  const cnt = document.getElementById(cntId);
-  const n = grp.querySelectorAll('input:checked').length;
-  cnt.textContent = n;
-  cnt.classList.toggle('show', n > 0);
-}
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyjbC3zIP1bAC18QIYvgbphaUt8BRHXj4ijNixNZptbGBW1n7F9Dwcfmd0xmQ9TXmb8Yg/exec";
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjbC3zIP1bAC18QIYvgbphaUt8BRHXj4ijNixNZptbGBW1n7F9Dwcfmd0xmQ9TXmb8Yg/exec";
+// ── GỬI ĐƠN ──
+function guiDon(){
+  const ho=getVal('ho'),ten=getVal('ten'),sdt=getVal('sdt'),diaChi=getVal('diaChi'),tinh=getVal('tinh');
+  const ngaySinh=getDate('ngaySinhNgay','ngaySinhThang','ngaySinhNam');
+  const gt=document.querySelector('input[name="gt"]:checked');
+  const hocVan=getVal('hocVan'),kinhNghiem=getVal('kinhNghiem');
+  const kenh=document.querySelector('input[name="kenh"]:checked');
+  const viTri=[...document.querySelectorAll('input[name="vitri"]:checked')].map(c=>c.value).join(', ');
+  if(!ho||!ten) return toast('⚠️ Vui lòng nhập đầy đủ họ và tên!','#D93025');
+  if(!ngaySinh) return toast('⚠️ Vui lòng chọn ngày sinh!','#D93025');
+  if(!gt) return toast('⚠️ Vui lòng chọn giới tính!','#D93025');
+  if(!sdt) return toast('⚠️ Vui lòng nhập số điện thoại!','#D93025');
+  if(!diaChi) return toast('⚠️ Vui lòng nhập địa chỉ hiện tại!','#D93025');
+  if(!tinh) return toast('⚠️ Vui lòng chọn tỉnh/thành phố!','#D93025');
+  if(!hocVan) return toast('⚠️ Vui lòng chọn trình độ học vấn!','#D93025');
+  if(!kinhNghiem) return toast('⚠️ Vui lòng chọn số năm kinh nghiệm!','#D93025');
+  if(!viTri) return toast('⚠️ Vui lòng chọn ít nhất một vị trí!','#D93025');
+  if(!kenh) return toast('⚠️ Vui lòng chọn kênh biết đến!','#D93025');
 
-function showFileName(input) {
-  const el = document.getElementById('fileName');
-  if (input.files && input.files[0]) {
-    el.textContent = '✅ ' + input.files[0].name;
-    el.style.display = 'block';
-  }
-}
+  const btn=document.getElementById('btnSubmit'),txt=document.getElementById('btnTxt');
+  btn.disabled=true; txt.textContent='Đang gửi...';
 
-function toast(msg, color) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.background = color || '#1B2F6E';
-  t.style.color = '#fff';
-  t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 4500);
-}
+  const duAn=[...document.querySelectorAll('input[name="duan"]:checked')].map(c=>c.value==='Khác'?('Khác: '+getVal('duanKhac')):c.value).join(', ');
+  const nguoiThanEl=document.querySelector('input[name="nguoiThan"]:checked');
+  const vingroupEl=document.querySelector('input[name="vingroup"]:checked');
+  const tgEl=document.querySelector('input[name="tg"]:checked');
+  const hangGplxEl=document.querySelector('input[name="hangGplx"]:checked');
 
-function getDateValue(ngayId, thangId, namId) {
-  const n = document.getElementById(ngayId).value;
-  const th = document.getElementById(thangId).value;
-  const nam = document.getElementById(namId).value;
-  if (!n || !th || !nam) return '';
-  return nam + '-' + th + '-' + n;
-}
-
-function guiDon() {
-  const ho       = document.getElementById('ho').value.trim();
-  const ten      = document.getElementById('ten').value.trim();
-  const ngaySinh = getDateValue('ngaySinhNgay','ngaySinhThang','ngaySinhNam');
-  const gioiTinh = document.querySelector('input[name="gt"]:checked');
-  const cccd     = document.getElementById('cccd').value.trim();
-  const sdt      = document.getElementById('sdt').value.trim();
-  const tinh     = document.getElementById('tinh').value;
-  const diaChi   = document.getElementById('diaChi').value.trim();
-  const hocVan   = document.getElementById('hocVan').value;
-  const kinhNghiem = document.getElementById('kinhNghiem').value;
-
-  const viTriChon = [...document.querySelectorAll('input[name="vitri"]:checked')]
-    .map(cb => cb.value).join(', ');
-
-  // Dự án
-  const duAnChon = [...document.querySelectorAll('input[name="duan"]:checked')]
-    .map(cb => cb.value === 'Khác'
-      ? ('Khác: ' + document.getElementById('duanKhac').value.trim())
-      : cb.value)
-    .join(', ');
-
-  // Validate
-  if (!ho || !ten)    return toast('⚠️ Vui lòng nhập đầy đủ họ và tên!', '#D93025');
-  if (!ngaySinh)      return toast('⚠️ Vui lòng chọn đầy đủ ngày sinh!', '#D93025');
-  if (!gioiTinh)      return toast('⚠️ Vui lòng chọn giới tính!', '#D93025');
-  if (!sdt)           return toast('⚠️ Vui lòng nhập số điện thoại!', '#D93025');
-  if (!diaChi)        return toast('⚠️ Vui lòng nhập địa chỉ!', '#D93025');
-  if (!tinh)          return toast('⚠️ Vui lòng chọn tỉnh/thành phố!', '#D93025');
-  if (!viTriChon)     return toast('⚠️ Vui lòng chọn ít nhất 1 vị trí ứng tuyển!', '#D93025');
-
-  const thoiGian = document.querySelector('input[name="tg"]:checked');
-  const ngayCap  = getDateValue('ngayCapNgay','ngayCapThang','ngayCapNam');
-
-  const payload = {
-    hoTen:       ho + ' ' + ten,
-    ngaySinh,
-    gioiTinh:    gioiTinh.value,
-    cccd,
-    ngayCap,
-    noiCap:      document.getElementById('noiCap').value,
-    sdt,
-    email:       document.getElementById('email').value,
-    diaChi,
-    quan:        document.getElementById('quan').value,
-    tinh,
-    queQuan:     document.getElementById('queQuan').value,
-    hocVan,
-    chuyenNganh: document.getElementById('chuyenNganh').value,
-    bangCap:     document.getElementById('bangCap').value,
-    kinhNghiem,
-    moTaKN:      document.getElementById('moTaKN').value,
-    kyNang:      document.getElementById('kyNang').value,
-    viTri:       viTriChon,
-    duAn:        duAnChon,
-    luong:       document.getElementById('luong').value,
-    thoiGian:    thoiGian ? thoiGian.value : '',
-    ghiChu:      document.getElementById('ghiChu').value,
+  const payload={
+    ho,ten,ngaySinh,gioiTinh:gt.value,noiSinh:getVal('noiSinh'),
+    honNhan:document.querySelector('input[name="hn"]:checked')?.value||'',
+    danToc:getVal('danToc'),tonGiao:getVal('tonGiao'),
+    chieuCao:getVal('chieuCao'),canNang:getVal('canNang'),
+    cccd:getVal('cccd'),ngayCap:getDate('ngayCapNgay','ngayCapThang','ngayCapNam'),noiCap:getVal('noiCap'),
+    hoChieu:getVal('hoChieu'),hcHetHan:getDate('hcNgay','hcThang','hcNam'),
+    sdt,sdtNha:getVal('sdtNha'),email:getVal('email'),
+    hoKhau:getVal('hoKhau'),diaChi:[diaChi,getVal('quan'),tinh].filter(Boolean).join(', '),
+    llHoTen:getVal('llHoTen'),llSdt:getVal('llSdt'),llQuanHe:getVal('llQuanHe'),
+    bhxh:getVal('bhxh'),bhxhTT:getVal('bhxhTT'),
+    mst:getVal('mst'),mstTT:getVal('mstTT'),
+    tkTech:getVal('tkTech'),tkKhac:getVal('tkKhac'),nganHang:getVal('nganHang'),
+    hocVan,tenTruong:getVal('tenTruong'),chuyenNganh:getVal('chuyenNganh'),bangCap:getVal('bangCap'),
+    kinhNghiem,moTaKN:getVal('moTaKN'),kyNang:getVal('kyNang'),
+    viTri,duAn,luong:getVal('luong'),thoiGian:tgEl?.value||'',
+    coGplx:document.getElementById('gplxSection').classList.contains('show')?'Có':'Không',
+    loaiXe:getVal('loaiXe'),hangGplx:hangGplxEl?.value||'',soGplx:getVal('soGplx'),
+    ttGplx:getVal('ttGplx'),ngayCapGplx:getDate('gplxNgay','gplxThang','gplxNam'),noiCapGplx:getVal('noiCapGplx'),
+    nguoiThan:nguoiThanEl?.value||'',nguoiThanInfo:getVal('nguoiThanInfo'),
+    vingroup:vingroupEl?.value||'',vingroupInfo:getVal('vingroupInfo'),
+    nguoiThamKhao:getVal('nguoiThamKhao'),
+    kenh:kenh.value,nguoiGT:getVal('nguoiGT'),ghiChu:getVal('ghiChu'),
   };
 
-  const btn = document.getElementById('btnSubmit');
-  const txt = document.getElementById('btnTxt');
-  btn.disabled = true;
-  txt.textContent = 'Đang gửi...';
+  fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)})
+    .then(r=>r.json())
+    .then(()=>{toast('✅ Đã gửi đơn thành công! Chúng tôi sẽ liên hệ sớm.','#1B6E2F');btn.disabled=false;txt.textContent='Nộp Đơn Ứng Tuyển';})
+    .catch(()=>{toast('❌ Lỗi kết nối. Vui lòng thử lại!','#D93025');btn.disabled=false;txt.textContent='Nộp Đơn Ứng Tuyển';});
+}
 
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-  .then(() => {
-    toast('✅ Nộp đơn thành công! VinAlpha sẽ liên hệ bạn sớm nhất.', '#1B6E2F');
-    btn.disabled = false;
-    txt.textContent = 'Nộp Đơn Ứng Tuyển';
-    document.querySelectorAll('input:not([type=radio]):not([type=checkbox]):not([type=file]), select, textarea')
-      .forEach(el => el.value = '');
-    document.querySelectorAll('input[type=radio], input[type=checkbox]')
-      .forEach(el => el.checked = false);
-    document.getElementById('fileName').style.display = 'none';
-    document.getElementById('duanKhacWrap').classList.remove('show');
-  })
-  .catch(() => {
-    toast('❌ Có lỗi xảy ra! Vui lòng thử lại hoặc gọi 0967 626 510.', '#D93025');
-    btn.disabled = false;
-    txt.textContent = 'Nộp Đơn Ứng Tuyển';
-  });
+// ── TẢI WORD ──
+async function taiWord(){
+  const ho=getVal('ho'),ten=getVal('ten'),sdt=getVal('sdt');
+  if(!ho||!ten) return toast('⚠️ Vui lòng nhập họ và tên trước!','#D93025');
+  if(!sdt) return toast('⚠️ Vui lòng nhập số điện thoại trước!','#D93025');
+
+  const btn=document.getElementById('btnWord'),txt=document.getElementById('btnWordTxt');
+  btn.disabled=true; txt.textContent='Đang tạo file...';
+
+  try {
+    const{Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,AlignmentType,WidthType,BorderStyle,ShadingType,VerticalAlign}=docx;
+
+    const hoTen=ho+' '+ten;
+    const ngaySinh=getDate('ngaySinhNgay','ngaySinhThang','ngaySinhNam');
+    const noiSinh=getVal('noiSinh');
+    const gtEl=document.querySelector('input[name="gt"]:checked');
+    const gioiTinh=gtEl?gtEl.value:'';
+    const hnEl=document.querySelector('input[name="hn"]:checked');
+    const honNhan=hnEl?hnEl.value:'';
+    const danToc=getVal('danToc')||'Kinh';
+    const tonGiao=getVal('tonGiao');
+    const chieuCao=getVal('chieuCao');
+    const canNang=getVal('canNang');
+    const cccd=getVal('cccd');
+    const ngayCap=getDate('ngayCapNgay','ngayCapThang','ngayCapNam');
+    const noiCap=getVal('noiCap');
+    const hoChieu=getVal('hoChieu');
+    const hcHetHan=getDate('hcNgay','hcThang','hcNam');
+    const sdtMobile=sdt;
+    const sdtNha=getVal('sdtNha');
+    const email=getVal('email');
+    const hoKhau=getVal('hoKhau');
+    const diaChi=getVal('diaChi');
+    const quan=getVal('quan');
+    const tinh=getVal('tinh');
+    const diaChiHT=[diaChi,quan,tinh].filter(Boolean).join(', ');
+    const llHoTen=getVal('llHoTen');
+    const llSdt=getVal('llSdt');
+    const llQuanHe=getVal('llQuanHe');
+    const bhxh=getVal('bhxh'),bhxhTT=getVal('bhxhTT');
+    const mst=getVal('mst'),mstTT=getVal('mstTT');
+    const tkTech=getVal('tkTech'),tkKhac=getVal('tkKhac'),nganHang=getVal('nganHang');
+    const hocVan=getVal('hocVan');
+    const tenTruong=getVal('tenTruong');
+    const chuyenNganh=getVal('chuyenNganh');
+    const bangCap=getVal('bangCap');
+    const kinhNghiem=getVal('kinhNghiem');
+    const moTaKN=getVal('moTaKN');
+    const kyNang=getVal('kyNang');
+    const viTri=[...document.querySelectorAll('input[name="vitri"]:checked')].map(c=>c.value).join(', ');
+    const duAn=[...document.querySelectorAll('input[name="duan"]:checked')].map(c=>c.value==='Khác'?('Khác: '+getVal('duanKhac')):c.value).join(', ');
+    const luong=getVal('luong');
+    const tgEl=document.querySelector('input[name="tg"]:checked');
+    const thoiGian=tgEl?tgEl.value:'';
+    const nguoiThanEl=document.querySelector('input[name="nguoiThan"]:checked');
+    const nguoiThan=nguoiThanEl?nguoiThanEl.value:'';
+    const nguoiThanInfo=getVal('nguoiThanInfo');
+    const vingroupEl=document.querySelector('input[name="vingroup"]:checked');
+    const vingroup=vingroupEl?vingroupEl.value:'';
+    const vingroupInfo=getVal('vingroupInfo');
+    const nguoiThamKhao=getVal('nguoiThamKhao');
+    const kenhEl=document.querySelector('input[name="kenh"]:checked');
+    const kenh=kenhEl?kenhEl.value:'';
+    const nguoiGT=getVal('nguoiGT');
+    const ghiChu=getVal('ghiChu');
+    const coGplx=document.getElementById('gplxSection').classList.contains('show');
+    const loaiXe=getVal('loaiXe');
+    const hangGplxEl=document.querySelector('input[name="hangGplx"]:checked');
+    const hangGplx=hangGplxEl?hangGplxEl.value:'';
+    const soGplx=getVal('soGplx');
+    const ttGplx=getVal('ttGplx');
+    const ngayCapGplx=getDate('gplxNgay','gplxThang','gplxNam');
+    const noiCapGplx=getVal('noiCapGplx');
+
+    const W=9640;
+    const bThin={style:BorderStyle.SINGLE,size:3,color:'9AA5C0'};
+    const borders={top:bThin,bottom:bThin,left:bThin,right:bThin};
+    function R(text,bold=false,size=19){return new TextRun({text:text||'',bold,size,font:'Times New Roman'});}
+    function lbl(text){return R(text,true,19);}
+    function val(text){return R(text||'',false,19);}
+    function cell(children,w,opts={}){return new TableCell({borders,width:{size:w,type:WidthType.DXA},margins:{top:50,bottom:50,left:90,right:90},verticalAlign:VerticalAlign.CENTER,...opts,children:[new Paragraph({children,spacing:{after:0}})]});}
+    function emptyRow(ws){return new TableRow({children:ws.map(w=>cell([],w))});}
+    function headerRow(labels,ws){return new TableRow({children:labels.map((l,i)=>cell([lbl(l)],ws[i]))});}
+    function dataRow(vals,ws){return new TableRow({children:vals.map((v,i)=>cell([val(v)],ws[i]))});}
+    function sectionTitle(text){return new Paragraph({children:[new TextRun({text,bold:true,size:22,font:'Times New Roman',color:'1B2F6E'})],spacing:{before:160,after:60},shading:{fill:'E8EDF8',type:ShadingType.CLEAR}});}
+    function gap(){return new Paragraph({children:[],spacing:{after:40}});}
+
+    const hn=honNhan==='Độc thân'?'Độc thân ✓  /  Đã kết hôn  /  Ly dị':honNhan==='Đã kết hôn'?'Độc thân  /  Đã kết hôn ✓  /  Ly dị':honNhan==='Ly dị'?'Độc thân  /  Đã kết hôn  /  Ly dị ✓':'Độc thân  /  Đã kết hôn  /  Ly dị';
+    const gt2=gioiTinh==='Nam'?'Nam ✓  /  Nữ':gioiTinh==='Nữ'?'Nam  /  Nữ ✓':'Nam  /  Nữ';
+
+    const doc=new Document({
+      styles:{default:{document:{run:{font:'Times New Roman',size:19}}}},
+      sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:850,bottom:850,left:1100,right:750}}},
+        children:[
+          new Paragraph({children:[R('BM1.2.TD.02',false,16)],alignment:AlignmentType.RIGHT,spacing:{after:30}}),
+          new Paragraph({children:[new TextRun({text:'PHIẾU THÔNG TIN CÁ NHÂN',bold:true,size:30,font:'Times New Roman'})],alignment:AlignmentType.CENTER,spacing:{after:16}}),
+          new Paragraph({children:[new TextRun({text:'(*) Bắt buộc',italics:true,bold:true,size:19,font:'Times New Roman',color:'D93025'})],alignment:AlignmentType.CENTER,spacing:{after:100}}),
+
+          sectionTitle('I. THÔNG TIN CÁ NHÂN'),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[W/2,W/2],rows:[
+            new TableRow({children:[cell([lbl('Họ và Tên (*): '),val(hoTen)],W/2),cell([lbl('Ngày sẵn sàng bắt đầu (*): '),val(thoiGian)],W/2)]}),
+            new TableRow({children:[cell([lbl('Ngày tháng năm sinh (*): '),val(ngaySinh)],W/2),cell([lbl('Nơi sinh (*): '),val(noiSinh)],W/2)]}),
+            new TableRow({children:[cell([lbl('Chiều cao: '),val(chieuCao?(chieuCao+' cm'):'')],W/2),cell([lbl('Cân nặng: '),val(canNang?(canNang+' kg'):'')],W/2)]}),
+            new TableRow({children:[cell([lbl('Chức danh dự tuyển (*): '),val(viTri)],W/2),cell([lbl('Bộ phận / Dự án (*): '),val(duAn)],W/2)]}),
+            new TableRow({children:[cell([lbl('Quốc tịch (*): '),val('Việt Nam')],W/2),cell([lbl('Giới tính (*): '),val(gt2)],W/2)]}),
+            new TableRow({children:[cell([lbl('Dân tộc (*): '),val(danToc)],W/2),cell([lbl('Tôn giáo (*): '),val(tonGiao)],W/2)]}),
+            new TableRow({children:[cell([lbl('Điện thoại nhà riêng: '),val(sdtNha)],W/2),cell([lbl('Di động (*): '),val(sdtMobile)],W/2)]}),
+            new TableRow({children:[cell([lbl('Tình trạng hôn nhân (*): '),val(hn)],W)]}),
+          ]}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.34),Math.round(W*.33),Math.round(W*.33)],rows:[
+            new TableRow({children:[cell([lbl('Số CMND/CCCD (*): '),val(cccd)],Math.round(W*.34)),cell([lbl('Ngày cấp (*): '),val(ngayCap)],Math.round(W*.33)),cell([lbl('Nơi cấp (*): '),val(noiCap)],Math.round(W*.33))]}),
+            new TableRow({children:[cell([lbl('Hộ chiếu số: '),val(hoChieu)],Math.round(W*.34)),cell([lbl('Ngày hết hạn: '),val(hcHetHan)],Math.round(W*.33)),cell([lbl('Nơi cấp HC: ')],Math.round(W*.33))]}),
+          ]}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[W],rows:[
+            new TableRow({children:[cell([lbl('Địa chỉ Email (*): '),val(email)],W)]}),
+            new TableRow({children:[cell([lbl('Hộ khẩu thường trú (sau sáp nhập) (*): '),val(hoKhau)],W)]}),
+            new TableRow({children:[cell([lbl('Địa chỉ hiện tại (sau sáp nhập) (*): '),val(diaChiHT)],W)]}),
+          ]}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[W/2,W/2],rows:[
+            new TableRow({children:[cell([lbl('Số sổ BHXH (*): '),val(bhxh),lbl('   Tình trạng: '),val(bhxhTT)],W/2),cell([lbl('Mã số thuế TNCN (*): '),val(mst),lbl('   Giảm trừ: '),val(mstTT)],W/2)]}),
+            new TableRow({children:[cell([lbl('Số TK Techcombank (*): '),val(tkTech)],W/2),cell([lbl('Số TK ngân hàng khác: '),val(tkKhac)],W/2)]}),
+            new TableRow({children:[cell([],W/2),cell([lbl('Ngân hàng – Chi nhánh: '),val(nganHang)],W/2)]}),
+            new TableRow({children:[cell([lbl('Họ tên người liên lạc khẩn cấp (*): '),val(llHoTen)],W)]}),
+            new TableRow({children:[cell([lbl('Di động (*): '),val(llSdt)],W/2),cell([lbl('Mối quan hệ (*): '),val(llQuanHe)],W/2)]}),
+          ]}),
+
+          gap(),
+          sectionTitle('II. NGƯỜI THÂN TẠI VINALPHA / LỊCH SỬ VINGROUP'),
+          new Paragraph({children:[lbl('2.1. Có người ruột thịt/họ hàng đang làm tại VinAlpha không? '),val('Có: '+(nguoiThan==='Có'?'✓':'  ')+'     Không: '+(nguoiThan==='Không'?'✓':'  '))],spacing:{after:50}}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)],rows:[
+            headerRow(['Họ và Tên','Chức danh','Đơn vị công tác','Mối quan hệ'],[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+            dataRow([nguoiThan==='Có'?nguoiThanInfo:'','','',''],[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+            emptyRow([Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+          ]}),
+          gap(),
+          new Paragraph({children:[lbl('2.2. Đã từng làm việc tại Tập đoàn VinGroup chưa? '),val('Có: '+(vingroup==='Có'?'✓':'  ')+'     Không: '+(vingroup==='Không'?'✓':'  '))],spacing:{after:50}}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)],rows:[
+            headerRow(['Họ và Tên','Chức danh','Đơn vị công tác','Thời gian'],[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+            dataRow([vingroup==='Có'?vingroupInfo:'','','',''],[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+            emptyRow([Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+          ]}),
+
+          gap(),
+          sectionTitle('III. TRÌNH ĐỘ HỌC VẤN HOẶC BẰNG CẤP CHỨNG CHỈ'),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.18),Math.round(W*.28),Math.round(W*.24),Math.round(W*.15),Math.round(W*.15)],rows:[
+            headerRow(['Trình độ *','Tên trường/TT cấp bằng *','Chuyên ngành *','Từ năm','Đến năm'],[Math.round(W*.18),Math.round(W*.28),Math.round(W*.24),Math.round(W*.15),Math.round(W*.15)]),
+            dataRow([hocVan,tenTruong,chuyenNganh,'',''],[Math.round(W*.18),Math.round(W*.28),Math.round(W*.24),Math.round(W*.15),Math.round(W*.15)]),
+            emptyRow([Math.round(W*.18),Math.round(W*.28),Math.round(W*.24),Math.round(W*.15),Math.round(W*.15)]),
+            emptyRow([Math.round(W*.18),Math.round(W*.28),Math.round(W*.24),Math.round(W*.15),Math.round(W*.15)]),
+          ]}),
+
+          gap(),
+          sectionTitle('IV. GIẤY PHÉP LÁI XE (Mục dành riêng cho nhân viên lái xe, lái máy)'),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[W/2,W/2],rows:[
+            new TableRow({children:[cell([lbl('Loại xe / Loại máy: '),val(coGplx?loaiXe:'')],W/2),cell([lbl('Hạng GPLX: '),val(coGplx?hangGplx:'')],W/2)]}),
+            new TableRow({children:[cell([lbl('Số GPLX: '),val(coGplx?soGplx:'')],W/2),cell([lbl('Tình trạng: '),val(coGplx?ttGplx:'')],W/2)]}),
+            new TableRow({children:[cell([lbl('Ngày cấp: '),val(coGplx?ngayCapGplx:'')],W/2),cell([lbl('Nơi cấp: '),val(coGplx?noiCapGplx:'')],W/2)]}),
+          ]}),
+
+          gap(),
+          sectionTitle('V. KINH NGHIỆM LÀM VIỆC (Yêu cầu mô tả chi tiết)'),
+          new Paragraph({children:[new TextRun({text:'Tính từ thời điểm hiện tại trở về trước:',italics:true,size:19,font:'Times New Roman'})],spacing:{after:50}}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.22),Math.round(W*.13),Math.round(W*.13),Math.round(W*.3),Math.round(W*.22)],rows:[
+            headerRow(['Tên Công ty *','Từ năm *','Đến năm *','Mô tả chi tiết công việc *','Mức lương NET *'],[Math.round(W*.22),Math.round(W*.13),Math.round(W*.13),Math.round(W*.3),Math.round(W*.22)]),
+            dataRow(['',kinhNghiem,'',moTaKN,luong],[Math.round(W*.22),Math.round(W*.13),Math.round(W*.13),Math.round(W*.3),Math.round(W*.22)]),
+            emptyRow([Math.round(W*.22),Math.round(W*.13),Math.round(W*.13),Math.round(W*.3),Math.round(W*.22)]),
+          ]}),
+          (bangCap||kyNang)?new Paragraph({children:[lbl('Bằng cấp/Chứng chỉ: '),val(bangCap),lbl('  |  Kỹ năng: '),val(kyNang)],spacing:{before:80,after:40}}):gap(),
+
+          gap(),
+          sectionTitle('VI. NGƯỜI THAM KHẢO'),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.25),Math.round(W*.33),Math.round(W*.25),Math.round(W*.17)],rows:[
+            headerRow(['Họ và Tên *','Chức danh – Đơn vị *','Điện thoại – email *','Mối quan hệ *'],[Math.round(W*.25),Math.round(W*.33),Math.round(W*.25),Math.round(W*.17)]),
+            dataRow([nguoiThamKhao,'','',''],[Math.round(W*.25),Math.round(W*.33),Math.round(W*.25),Math.round(W*.17)]),
+            emptyRow([Math.round(W*.25),Math.round(W*.33),Math.round(W*.25),Math.round(W*.17)]),
+          ]}),
+
+          gap(),
+          sectionTitle('VII. BIẾT ĐẾN VỊ TRÍ ỨNG TUYỂN QUA KÊNH NÀO?'),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.22),Math.round(W*.22),Math.round(W*.34),Math.round(W*.22)],rows:[
+            headerRow(['Web tuyển dụng','Mạng xã hội (Zalo, FB)','Người giới thiệu (Họ tên/quan hệ)','Tự tìm đến'],[Math.round(W*.22),Math.round(W*.22),Math.round(W*.34),Math.round(W*.22)]),
+            dataRow([kenh==='Web tuyển dụng'?'✓':'',kenh==='Mạng xã hội (Zalo/FB)'?'✓':'',kenh==='Người giới thiệu'?(nguoiGT||'✓'):'',kenh==='Tự tìm đến'?'✓':''],[Math.round(W*.22),Math.round(W*.22),Math.round(W*.34),Math.round(W*.22)]),
+          ]}),
+
+          gap(),
+          ...(ghiChu?[new Paragraph({children:[lbl('Giới thiệu bản thân / Ghi chú: '),val(ghiChu)],spacing:{before:60,after:60}})]:[]),
+          new Paragraph({children:[new TextRun({text:'Tôi xin cam đoan những thông tin trên là đầy đủ và chính xác. Nếu có những thông tin không đúng sự thật, tôi xin hoàn toàn chịu trách nhiệm và chấp nhận hình thức buộc thôi việc (nếu đã được Công ty tuyển dụng).',italics:true,size:19,font:'Times New Roman'})],spacing:{before:120,after:100}}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.65),Math.round(W*.35)],rows:[
+            new TableRow({children:[cell([lbl('Nhân viên ký và ghi rõ họ tên (*)')],Math.round(W*.65)),cell([lbl('Ngày (*): ')],Math.round(W*.35))]}),
+            new TableRow({children:[
+              new TableCell({borders,width:{size:Math.round(W*.65),type:WidthType.DXA},margins:{top:50,bottom:50,left:90,right:90},children:[new Paragraph({children:[],spacing:{after:0}}),new Paragraph({children:[],spacing:{after:0}}),new Paragraph({children:[],spacing:{after:0}}),new Paragraph({children:[new TextRun({text:hoTen,bold:true,size:19,font:'Times New Roman'})],alignment:AlignmentType.CENTER,spacing:{after:0}})]}),
+              new TableCell({borders,width:{size:Math.round(W*.35),type:WidthType.DXA},margins:{top:50,bottom:50,left:90,right:90},children:[new Paragraph({children:[],spacing:{after:0}})]})
+            ]}),
+          ]}),
+        ]
+      }]
+    });
+
+    const blob=await Packer.toBlob(doc);
+    saveAs(blob,'PhieuThongTin_'+hoTen.replace(/\s+/g,'_')+'_'+sdt.replace(/\s+/g,'')+'.docx');
+    toast('✅ Đã tải xuống file Word thành công!','#1B6E2F');
+  } catch(e){
+    console.error(e);
+    toast('❌ Lỗi tạo file: '+e.message,'#D93025');
+  }
+  btn.disabled=false; txt.textContent='Tải Phiếu Word (.docx)';
 }
 </script>
 </body>
