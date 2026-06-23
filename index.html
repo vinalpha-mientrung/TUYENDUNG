@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VinAlpha – Phiếu Thông Tin Cá Nhân</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
-<script src="https://unpkg.com/docxtemplater@3.46.0/build/docxtemplater.js"></script>
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -732,58 +731,213 @@ function guiDon(){
     .catch(()=>{toast('❌ Lỗi kết nối. Vui lòng thử lại!','#D93025');btn.disabled=false;txt.textContent='Nộp Đơn Ứng Tuyển';});
 }
 
-// ── TẢI WORD dùng template gốc ──
-const TEMPLATE_URL = 'https://raw.githubusercontent.com/vinalpha-mientrung/TUYENDUNG/main/BMTT12.%20Phi%E1%BA%BFu%20th%C3%B4ng%20tin%20c%C3%A1%20nh%C3%A2n.docx';
-
+// ── TẢI WORD ──
 async function taiWord(){
-  const ho=getVal('ho'), ten=getVal('ten'), sdt=getVal('sdt');
+  const ho=getVal('ho'),ten=getVal('ten'),sdt=getVal('sdt');
   if(!ho||!ten) return toast('⚠️ Vui lòng nhập họ và tên trước!','#D93025');
   if(!sdt) return toast('⚠️ Vui lòng nhập số điện thoại trước!','#D93025');
 
-  const btn=document.getElementById('btnWord'), txt=document.getElementById('btnWordTxt');
-  btn.disabled=true; txt.textContent='Đang tải biểu mẫu...';
+  const btn=document.getElementById('btnWord'),txt=document.getElementById('btnWordTxt');
+  btn.disabled=true; txt.textContent='Đang tạo file...';
 
   try {
-    // Fetch file Word gốc từ GitHub
-    const resp = await fetch(TEMPLATE_URL);
-    if(!resp.ok) throw new Error('Không tải được biểu mẫu từ GitHub ('+resp.status+')');
-    const arrayBuffer = await resp.arrayBuffer();
+    const{Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,AlignmentType,WidthType,BorderStyle,ShadingType,VerticalAlign}=docx;
 
-    txt.textContent='Đang điền dữ liệu...';
+    const hoTen=ho+' '+ten;
+    const ngaySinh=getDate('ngaySinhNgay','ngaySinhThang','ngaySinhNam');
+    const noiSinh=getVal('noiSinh');
+    const gtEl=document.querySelector('input[name="gt"]:checked');
+    const gioiTinh=gtEl?gtEl.value:'';
+    const hnEl=document.querySelector('input[name="hn"]:checked');
+    const honNhan=hnEl?hnEl.value:'';
+    const danToc=getVal('danToc')||'Kinh';
+    const tonGiao=getVal('tonGiao');
+    const chieuCao=getVal('chieuCao');
+    const canNang=getVal('canNang');
+    const cccd=getVal('cccd');
+    const ngayCap=getDate('ngayCapNgay','ngayCapThang','ngayCapNam');
+    const noiCap=getVal('noiCap');
+    const hoChieu=getVal('hoChieu');
+    const hcHetHan=getDate('hcNgay','hcThang','hcNam');
+    const sdtMobile=sdt;
+    const sdtNha=getVal('sdtNha');
+    const email=getVal('email');
+    const hoKhau=getVal('hoKhau');
+    const diaChi=getVal('diaChi');
+    const quan=getVal('quan');
+    const tinh=getVal('tinh');
+    const diaChiHT=[diaChi,quan,tinh].filter(Boolean).join(', ');
+    const llHoTen=getVal('llHoTen');
+    const llSdt=getVal('llSdt');
+    const llQuanHe=getVal('llQuanHe');
+    const bhxh=getVal('bhxh'),bhxhTT=getVal('bhxhTT');
+    const mst=getVal('mst'),mstTT=getVal('mstTT');
+    const tkTech=getVal('tkTech'),tkKhac=getVal('tkKhac'),nganHang=getVal('nganHang');
+    const hocVan=getVal('hocVan');
+    const tenTruong=getVal('tenTruong');
+    const chuyenNganh=getVal('chuyenNganh');
+    const bangCap=getVal('bangCap');
+    const kinhNghiem=getVal('kinhNghiem');
+    const moTaKN=getVal('moTaKN');
+    const kyNang=getVal('kyNang');
+    const viTri=[...document.querySelectorAll('input[name="vitri"]:checked')].map(c=>c.value).join(', ');
+    const duAn=[...document.querySelectorAll('input[name="duan"]:checked')].map(c=>c.value==='Khác'?('Khác: '+getVal('duanKhac')):c.value).join(', ');
+    const luong=getVal('luong');
+    const tgEl=document.querySelector('input[name="tg"]:checked');
+    const thoiGian=tgEl?tgEl.value:'';
+    const nguoiThanEl=document.querySelector('input[name="nguoiThan"]:checked');
+    const nguoiThan=nguoiThanEl?nguoiThanEl.value:'';
+    const nguoiThanInfo=getVal('nguoiThanInfo');
+    const vingroupEl=document.querySelector('input[name="vingroup"]:checked');
+    const vingroup=vingroupEl?vingroupEl.value:'';
+    const vingroupInfo=getVal('vingroupInfo');
+    const nguoiThamKhao=getVal('nguoiThamKhao');
+    const kenhEl=document.querySelector('input[name="kenh"]:checked');
+    const kenh=kenhEl?kenhEl.value:'';
+    const nguoiGT=getVal('nguoiGT');
+    const ghiChu=getVal('ghiChu');
+    const coGplx=document.getElementById('gplxSection').classList.contains('show');
+    const loaiXe=getVal('loaiXe');
+    const hangGplxEl=document.querySelector('input[name="hangGplx"]:checked');
+    const hangGplx=hangGplxEl?hangGplxEl.value:'';
+    const soGplx=getVal('soGplx');
+    const ttGplx=getVal('ttGplx');
+    const ngayCapGplx=getDate('gplxNgay','gplxThang','gplxNam');
+    const noiCapGplx=getVal('noiCapGplx');
 
-    // Thu thập dữ liệu
-    const hoTen = ho + ' ' + ten;
-    const viTri = [...document.querySelectorAll('input[name="vitri"]:checked')].map(c=>c.value).join(', ');
+    const W=9640;
+    const bThin={style:BorderStyle.SINGLE,size:3,color:'9AA5C0'};
+    const borders={top:bThin,bottom:bThin,left:bThin,right:bThin};
+    function R(text,bold=false,size=19){return new TextRun({text:text||'',bold,size,font:'Times New Roman'});}
+    function lbl(text){return R(text,true,19);}
+    function val(text){return R(text||'',false,19);}
+    function cell(children,w,opts={}){return new TableCell({borders,width:{size:w,type:WidthType.DXA},margins:{top:50,bottom:50,left:90,right:90},verticalAlign:VerticalAlign.CENTER,...opts,children:[new Paragraph({children,spacing:{after:0}})]});}
+    function emptyRow(ws){return new TableRow({children:ws.map(w=>cell([],w))});}
+    function headerRow(labels,ws){return new TableRow({children:labels.map((l,i)=>cell([lbl(l)],ws[i]))});}
+    function dataRow(vals,ws){return new TableRow({children:vals.map((v,i)=>cell([val(v)],ws[i]))});}
+    function sectionTitle(text){return new Paragraph({children:[new TextRun({text,bold:true,size:22,font:'Times New Roman',color:'1B2F6E'})],spacing:{before:160,after:60},shading:{fill:'E8EDF8',type:ShadingType.CLEAR}});}
+    function gap(){return new Paragraph({children:[],spacing:{after:40}});}
 
-    // Điền vào template bằng docxtemplater
-    const zip = new PizZip(arrayBuffer);
-    const doc = new docxtemplater(zip, {
-      paragraphLoop: true,
-      linebreaks: true,
-      nullGetter: () => ''
+    const hn=honNhan==='Độc thân'?'Độc thân ✓  /  Đã kết hôn  /  Ly dị':honNhan==='Đã kết hôn'?'Độc thân  /  Đã kết hôn ✓  /  Ly dị':honNhan==='Ly dị'?'Độc thân  /  Đã kết hôn  /  Ly dị ✓':'Độc thân  /  Đã kết hôn  /  Ly dị';
+    const gt2=gioiTinh==='Nam'?'Nam ✓  /  Nữ':gioiTinh==='Nữ'?'Nam  /  Nữ ✓':'Nam  /  Nữ';
+
+    const doc=new Document({
+      styles:{default:{document:{run:{font:'Times New Roman',size:19}}}},
+      sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:850,bottom:850,left:1100,right:750}}},
+        children:[
+          new Paragraph({children:[R('BM1.2.TD.02',false,16)],alignment:AlignmentType.RIGHT,spacing:{after:30}}),
+          new Paragraph({children:[new TextRun({text:'PHIẾU THÔNG TIN CÁ NHÂN',bold:true,size:30,font:'Times New Roman'})],alignment:AlignmentType.CENTER,spacing:{after:16}}),
+          new Paragraph({children:[new TextRun({text:'(*) Bắt buộc',italics:true,bold:true,size:19,font:'Times New Roman',color:'D93025'})],alignment:AlignmentType.CENTER,spacing:{after:100}}),
+
+          sectionTitle('I. THÔNG TIN CÁ NHÂN'),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[W/2,W/2],rows:[
+            new TableRow({children:[cell([lbl('Họ và Tên (*): '),val(hoTen)],W/2),cell([lbl('Ngày sẵn sàng bắt đầu (*): '),val(thoiGian)],W/2)]}),
+            new TableRow({children:[cell([lbl('Ngày tháng năm sinh (*): '),val(ngaySinh)],W/2),cell([lbl('Nơi sinh (*): '),val(noiSinh)],W/2)]}),
+            new TableRow({children:[cell([lbl('Chiều cao: '),val(chieuCao?(chieuCao+' cm'):'')],W/2),cell([lbl('Cân nặng: '),val(canNang?(canNang+' kg'):'')],W/2)]}),
+            new TableRow({children:[cell([lbl('Chức danh dự tuyển (*): '),val(viTri)],W/2),cell([lbl('Bộ phận / Dự án (*): '),val(duAn)],W/2)]}),
+            new TableRow({children:[cell([lbl('Quốc tịch (*): '),val('Việt Nam')],W/2),cell([lbl('Giới tính (*): '),val(gt2)],W/2)]}),
+            new TableRow({children:[cell([lbl('Dân tộc (*): '),val(danToc)],W/2),cell([lbl('Tôn giáo (*): '),val(tonGiao)],W/2)]}),
+            new TableRow({children:[cell([lbl('Điện thoại nhà riêng: '),val(sdtNha)],W/2),cell([lbl('Di động (*): '),val(sdtMobile)],W/2)]}),
+            new TableRow({children:[cell([lbl('Tình trạng hôn nhân (*): '),val(hn)],W)]}),
+          ]}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.34),Math.round(W*.33),Math.round(W*.33)],rows:[
+            new TableRow({children:[cell([lbl('Số CMND/CCCD (*): '),val(cccd)],Math.round(W*.34)),cell([lbl('Ngày cấp (*): '),val(ngayCap)],Math.round(W*.33)),cell([lbl('Nơi cấp (*): '),val(noiCap)],Math.round(W*.33))]}),
+            new TableRow({children:[cell([lbl('Hộ chiếu số: '),val(hoChieu)],Math.round(W*.34)),cell([lbl('Ngày hết hạn: '),val(hcHetHan)],Math.round(W*.33)),cell([lbl('Nơi cấp HC: ')],Math.round(W*.33))]}),
+          ]}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[W],rows:[
+            new TableRow({children:[cell([lbl('Địa chỉ Email (*): '),val(email)],W)]}),
+            new TableRow({children:[cell([lbl('Hộ khẩu thường trú (sau sáp nhập) (*): '),val(hoKhau)],W)]}),
+            new TableRow({children:[cell([lbl('Địa chỉ hiện tại (sau sáp nhập) (*): '),val(diaChiHT)],W)]}),
+          ]}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[W/2,W/2],rows:[
+            new TableRow({children:[cell([lbl('Số sổ BHXH (*): '),val(bhxh),lbl('   Tình trạng: '),val(bhxhTT)],W/2),cell([lbl('Mã số thuế TNCN (*): '),val(mst),lbl('   Giảm trừ: '),val(mstTT)],W/2)]}),
+            new TableRow({children:[cell([lbl('Số TK Techcombank (*): '),val(tkTech)],W/2),cell([lbl('Số TK ngân hàng khác: '),val(tkKhac)],W/2)]}),
+            new TableRow({children:[cell([],W/2),cell([lbl('Ngân hàng – Chi nhánh: '),val(nganHang)],W/2)]}),
+            new TableRow({children:[cell([lbl('Họ tên người liên lạc khẩn cấp (*): '),val(llHoTen)],W)]}),
+            new TableRow({children:[cell([lbl('Di động (*): '),val(llSdt)],W/2),cell([lbl('Mối quan hệ (*): '),val(llQuanHe)],W/2)]}),
+          ]}),
+
+          gap(),
+          sectionTitle('II. NGƯỜI THÂN TẠI VINALPHA / LỊCH SỬ VINGROUP'),
+          new Paragraph({children:[lbl('2.1. Có người ruột thịt/họ hàng đang làm tại VinAlpha không? '),val('Có: '+(nguoiThan==='Có'?'✓':'  ')+'     Không: '+(nguoiThan==='Không'?'✓':'  '))],spacing:{after:50}}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)],rows:[
+            headerRow(['Họ và Tên','Chức danh','Đơn vị công tác','Mối quan hệ'],[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+            dataRow([nguoiThan==='Có'?nguoiThanInfo:'','','',''],[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+            emptyRow([Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+          ]}),
+          gap(),
+          new Paragraph({children:[lbl('2.2. Đã từng làm việc tại Tập đoàn VinGroup chưa? '),val('Có: '+(vingroup==='Có'?'✓':'  ')+'     Không: '+(vingroup==='Không'?'✓':'  '))],spacing:{after:50}}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)],rows:[
+            headerRow(['Họ và Tên','Chức danh','Đơn vị công tác','Thời gian'],[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+            dataRow([vingroup==='Có'?vingroupInfo:'','','',''],[Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+            emptyRow([Math.round(W*.28),Math.round(W*.24),Math.round(W*.28),Math.round(W*.2)]),
+          ]}),
+
+          gap(),
+          sectionTitle('III. TRÌNH ĐỘ HỌC VẤN HOẶC BẰNG CẤP CHỨNG CHỈ'),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.18),Math.round(W*.28),Math.round(W*.24),Math.round(W*.15),Math.round(W*.15)],rows:[
+            headerRow(['Trình độ *','Tên trường/TT cấp bằng *','Chuyên ngành *','Từ năm','Đến năm'],[Math.round(W*.18),Math.round(W*.28),Math.round(W*.24),Math.round(W*.15),Math.round(W*.15)]),
+            dataRow([hocVan,tenTruong,chuyenNganh,'',''],[Math.round(W*.18),Math.round(W*.28),Math.round(W*.24),Math.round(W*.15),Math.round(W*.15)]),
+            emptyRow([Math.round(W*.18),Math.round(W*.28),Math.round(W*.24),Math.round(W*.15),Math.round(W*.15)]),
+            emptyRow([Math.round(W*.18),Math.round(W*.28),Math.round(W*.24),Math.round(W*.15),Math.round(W*.15)]),
+          ]}),
+
+          gap(),
+          sectionTitle('IV. GIẤY PHÉP LÁI XE (Mục dành riêng cho nhân viên lái xe, lái máy)'),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[W/2,W/2],rows:[
+            new TableRow({children:[cell([lbl('Loại xe / Loại máy: '),val(coGplx?loaiXe:'')],W/2),cell([lbl('Hạng GPLX: '),val(coGplx?hangGplx:'')],W/2)]}),
+            new TableRow({children:[cell([lbl('Số GPLX: '),val(coGplx?soGplx:'')],W/2),cell([lbl('Tình trạng: '),val(coGplx?ttGplx:'')],W/2)]}),
+            new TableRow({children:[cell([lbl('Ngày cấp: '),val(coGplx?ngayCapGplx:'')],W/2),cell([lbl('Nơi cấp: '),val(coGplx?noiCapGplx:'')],W/2)]}),
+          ]}),
+
+          gap(),
+          sectionTitle('V. KINH NGHIỆM LÀM VIỆC (Yêu cầu mô tả chi tiết)'),
+          new Paragraph({children:[new TextRun({text:'Tính từ thời điểm hiện tại trở về trước:',italics:true,size:19,font:'Times New Roman'})],spacing:{after:50}}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.22),Math.round(W*.13),Math.round(W*.13),Math.round(W*.3),Math.round(W*.22)],rows:[
+            headerRow(['Tên Công ty *','Từ năm *','Đến năm *','Mô tả chi tiết công việc *','Mức lương NET *'],[Math.round(W*.22),Math.round(W*.13),Math.round(W*.13),Math.round(W*.3),Math.round(W*.22)]),
+            dataRow(['',kinhNghiem,'',moTaKN,luong],[Math.round(W*.22),Math.round(W*.13),Math.round(W*.13),Math.round(W*.3),Math.round(W*.22)]),
+            emptyRow([Math.round(W*.22),Math.round(W*.13),Math.round(W*.13),Math.round(W*.3),Math.round(W*.22)]),
+          ]}),
+          (bangCap||kyNang)?new Paragraph({children:[lbl('Bằng cấp/Chứng chỉ: '),val(bangCap),lbl('  |  Kỹ năng: '),val(kyNang)],spacing:{before:80,after:40}}):gap(),
+
+          gap(),
+          sectionTitle('VI. NGƯỜI THAM KHẢO'),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.25),Math.round(W*.33),Math.round(W*.25),Math.round(W*.17)],rows:[
+            headerRow(['Họ và Tên *','Chức danh – Đơn vị *','Điện thoại – email *','Mối quan hệ *'],[Math.round(W*.25),Math.round(W*.33),Math.round(W*.25),Math.round(W*.17)]),
+            dataRow([nguoiThamKhao,'','',''],[Math.round(W*.25),Math.round(W*.33),Math.round(W*.25),Math.round(W*.17)]),
+            emptyRow([Math.round(W*.25),Math.round(W*.33),Math.round(W*.25),Math.round(W*.17)]),
+          ]}),
+
+          gap(),
+          sectionTitle('VII. BIẾT ĐẾN VỊ TRÍ ỨNG TUYỂN QUA KÊNH NÀO?'),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.22),Math.round(W*.22),Math.round(W*.34),Math.round(W*.22)],rows:[
+            headerRow(['Web tuyển dụng','Mạng xã hội (Zalo, FB)','Người giới thiệu (Họ tên/quan hệ)','Tự tìm đến'],[Math.round(W*.22),Math.round(W*.22),Math.round(W*.34),Math.round(W*.22)]),
+            dataRow([kenh==='Web tuyển dụng'?'✓':'',kenh==='Mạng xã hội (Zalo/FB)'?'✓':'',kenh==='Người giới thiệu'?(nguoiGT||'✓'):'',kenh==='Tự tìm đến'?'✓':''],[Math.round(W*.22),Math.round(W*.22),Math.round(W*.34),Math.round(W*.22)]),
+          ]}),
+
+          gap(),
+          ...(ghiChu?[new Paragraph({children:[lbl('Giới thiệu bản thân / Ghi chú: '),val(ghiChu)],spacing:{before:60,after:60}})]:[]),
+          new Paragraph({children:[new TextRun({text:'Tôi xin cam đoan những thông tin trên là đầy đủ và chính xác. Nếu có những thông tin không đúng sự thật, tôi xin hoàn toàn chịu trách nhiệm và chấp nhận hình thức buộc thôi việc (nếu đã được Công ty tuyển dụng).',italics:true,size:19,font:'Times New Roman'})],spacing:{before:120,after:100}}),
+          new Table({width:{size:W,type:WidthType.DXA},columnWidths:[Math.round(W*.65),Math.round(W*.35)],rows:[
+            new TableRow({children:[cell([lbl('Nhân viên ký và ghi rõ họ tên (*)')],Math.round(W*.65)),cell([lbl('Ngày (*): ')],Math.round(W*.35))]}),
+            new TableRow({children:[
+              new TableCell({borders,width:{size:Math.round(W*.65),type:WidthType.DXA},margins:{top:50,bottom:50,left:90,right:90},children:[new Paragraph({children:[],spacing:{after:0}}),new Paragraph({children:[],spacing:{after:0}}),new Paragraph({children:[],spacing:{after:0}}),new Paragraph({children:[new TextRun({text:hoTen,bold:true,size:19,font:'Times New Roman'})],alignment:AlignmentType.CENTER,spacing:{after:0}})]}),
+              new TableCell({borders,width:{size:Math.round(W*.35),type:WidthType.DXA},margins:{top:50,bottom:50,left:90,right:90},children:[new Paragraph({children:[],spacing:{after:0}})]})
+            ]}),
+          ]}),
+        ]
+      }]
     });
 
-    doc.render({
-      hoTen: hoTen,
-      sdt: sdt,
-      viTri: viTri || ''
-    });
-
-    const blob = doc.getZip().generate({
-      type: 'blob',
-      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    });
-
-    const sdtClean = sdt.replace(/\s+/g,'');
-    const nameClean = hoTen.replace(/\s+/g,'_');
-    saveAs(blob, 'PhieuThongTin_' + nameClean + '_' + sdtClean + '.docx');
+    const blob=await Packer.toBlob(doc);
+    saveAs(blob,'PhieuThongTin_'+hoTen.replace(/\s+/g,'_')+'_'+sdt.replace(/\s+/g,'')+'.docx');
     toast('✅ Đã tải xuống file Word thành công!','#1B6E2F');
-
-  } catch(e) {
+  } catch(e){
     console.error(e);
-    toast('❌ Lỗi: ' + e.message, '#D93025');
+    toast('❌ Lỗi tạo file: '+e.message,'#D93025');
   }
   btn.disabled=false; txt.textContent='Tải Phiếu Word (.docx)';
-}</script>
+}
+</script>
 </body>
 </html>
