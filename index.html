@@ -161,6 +161,54 @@ body::before{content:'VinAlpha';position:fixed;top:50%;left:50%;transform:transl
 #rotateOverlay p{font-size:14px;color:rgba(255,255,255,0.65);line-height:1.6}
 #rotateOverlay .rot-skip{margin-top:10px;background:transparent;border:1.5px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.6);font-size:12px;padding:8px 20px;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif}
 @media(max-width:600px) and (orientation:portrait){#rotateOverlay{display:flex}}
+/* ── IN-APP BROWSER OVERLAY ── */
+#inapp-overlay{
+  display:none;position:fixed;inset:0;z-index:99999;
+  background:rgba(10,18,40,0.92);backdrop-filter:blur(6px);
+  align-items:flex-end;justify-content:center;
+  padding:0;
+}
+#inapp-overlay.show{display:flex}
+#inapp-box{
+  background:#fff;border-radius:20px 20px 0 0;
+  padding:28px 24px 40px;width:100%;max-width:480px;
+  text-align:center;animation:slideUp 0.35s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+#inapp-box .ia-icon{font-size:48px;margin-bottom:12px}
+#inapp-box h3{
+  font-family:'Montserrat',sans-serif;font-size:17px;font-weight:900;
+  color:#1B2F6E;margin-bottom:8px;
+}
+#inapp-box p{font-size:13px;color:#6B7594;line-height:1.7;margin-bottom:20px}
+#inapp-box .ia-steps{
+  background:#F0F3FA;border-radius:12px;
+  padding:14px 16px;text-align:left;margin-bottom:20px;
+}
+#inapp-box .ia-step{
+  display:flex;align-items:flex-start;gap:10px;
+  font-size:12.5px;color:#1A2340;line-height:1.6;
+  margin-bottom:8px;
+}
+#inapp-box .ia-step:last-child{margin-bottom:0}
+#inapp-box .ia-step .n{
+  width:22px;height:22px;min-width:22px;
+  background:#1B2F6E;color:#F5B800;
+  font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  margin-top:1px;
+}
+#inapp-box .ia-btn{
+  display:block;width:100%;padding:14px;
+  background:linear-gradient(135deg,#1B2F6E,#142357);
+  color:#F5B800;font-family:'Montserrat',sans-serif;
+  font-size:14px;font-weight:800;border-radius:12px;
+  border:none;cursor:pointer;letter-spacing:0.3px;
+}
+#inapp-box .ia-skip{
+  display:block;margin-top:12px;font-size:12px;
+  color:#A0AABF;cursor:pointer;text-decoration:underline;
+}
 </style>
 </head>
 <body>
@@ -764,6 +812,20 @@ body::before{content:'VinAlpha';position:fixed;top:50%;left:50%;transform:transl
 </div>
 
 </div><!-- end form-wrap -->
+<!-- IN-APP BROWSER OVERLAY -->
+<div id="inapp-overlay">
+  <div id="inapp-box">
+    <div class="ia-icon" id="ia-icon">🌐</div>
+    <h3 id="ia-title">Mở bằng trình duyệt để tải file</h3>
+    <p id="ia-desc">Bạn đang dùng trình duyệt trong app, không thể tải file Word về máy. Vui lòng mở trang này bằng <strong>Chrome</strong> hoặc <strong>Safari</strong>.</p>
+    <div class="ia-steps" id="ia-steps">
+      <!-- Nội dung điền bằng JS tuỳ theo iOS/Android/Zalo/FB -->
+    </div>
+    <button class="ia-btn" id="ia-copy-btn" onclick="copyAndOpenLink()">📋 Sao chép link & Mở trình duyệt</button>
+    <span class="ia-skip" onclick="document.getElementById('inapp-overlay').classList.remove('show')">Bỏ qua, tiếp tục xem (không tải được file)</span>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <div class="footer">
@@ -823,9 +885,82 @@ function updateCount(grpId,cntId){const n=document.getElementById(grpId).querySe
 // ── TOAST ──
 function toast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'#1B2F6E';t.style.color='#fff';t.style.display='block';setTimeout(()=>t.style.display='none',4500);}
 
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyjbC3zIP1bAC18QIYvgbphaUt8BRHXj4ijNixNZptbGBW1n7F9Dwcfmd0xmQ9TXmb8Yg/exec";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwLUL7uFj0P__Eqr0f9CzfUz9kWCNxITq9CJeFdfORrCx19skMIWwI6xOqlC4geLoueeQ/exec";
 
 // ── GỬI ĐƠN ──
+// ── PHÁT HIỆN TRÌNH DUYỆT TRONG APP ──
+(function(){
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPhone|iPad|iPod/i.test(ua);
+  var isAndroid = /Android/i.test(ua);
+
+  // Phát hiện in-app browser phổ biến
+  var isZalo    = /ZaloApp|ZaloBrowser|zalo/i.test(ua);
+  var isFB      = /FBAN|FBAV|FB_IAB|Facebook/i.test(ua);
+  var isLine    = /Line\/|KAKAOTALK/i.test(ua);
+  var isInstagram = /Instagram/i.test(ua);
+  var isTelegram  = /Telegram/i.test(ua);
+  var isInAppBrowser = isZalo || isFB || isLine || isInstagram || isTelegram;
+
+  // Trên iOS nếu không phải Safari/Chrome thì cũng coi là in-app
+  if(isIOS && !/Safari\/|CriOS\//i.test(ua)) isInAppBrowser = true;
+
+  if(!isInAppBrowser) return; // OK, không cần hiện overlay
+
+  // Cập nhật nội dung overlay theo nền tảng
+  var stepsHTML = '';
+  var appName = isZalo ? 'Zalo' : isFB ? 'Facebook' : isInstagram ? 'Instagram' : 'ứng dụng này';
+
+  if(isIOS){
+    document.getElementById('ia-icon').textContent = '🦁';
+    document.getElementById('ia-title').textContent = 'Mở bằng Safari để tải file';
+    document.getElementById('ia-desc').innerHTML =
+      'Trình duyệt trong <strong>' + appName + '</strong> không hỗ trợ tải file. Mở bằng <strong>Safari</strong> hoặc <strong>Chrome</strong> để dùng đầy đủ.';
+    stepsHTML =
+      '<div class="ia-step"><div class="n">1</div><div>Bấm <strong>"Sao chép link"</strong> bên dưới</div></div>' +
+      '<div class="ia-step"><div class="n">2</div><div>Mở app <strong>Safari</strong> hoặc <strong>Chrome</strong> trên iPhone</div></div>' +
+      '<div class="ia-step"><div class="n">3</div><div>Dán link vào thanh địa chỉ → nhấn <strong>Go / Đi</strong></div></div>';
+  } else if(isAndroid && isZalo){
+    document.getElementById('ia-icon').textContent = '🤖';
+    document.getElementById('ia-title').textContent = 'Mở bằng Chrome để tải file';
+    document.getElementById('ia-desc').innerHTML =
+      'Trình duyệt trong <strong>Zalo</strong> không hỗ trợ tải file Word. Vui lòng mở bằng <strong>Chrome</strong>.';
+    stepsHTML =
+      '<div class="ia-step"><div class="n">1</div><div>Bấm biểu tượng <strong>⋮ (ba chấm)</strong> góc trên phải trong Zalo</div></div>' +
+      '<div class="ia-step"><div class="n">2</div><div>Chọn <strong>"Mở bằng trình duyệt"</strong> hoặc <strong>"Open in Chrome"</strong></div></div>' +
+      '<div class="ia-step"><div class="n">3</div><div>Trang sẽ mở trong Chrome, tải file bình thường</div></div>';
+    document.getElementById('ia-copy-btn').textContent = '✅ Đã hiểu, mở bằng trình duyệt';
+    document.getElementById('ia-copy-btn').onclick = function(){
+      document.getElementById('inapp-overlay').classList.remove('show');
+    };
+  } else {
+    stepsHTML =
+      '<div class="ia-step"><div class="n">1</div><div>Bấm <strong>"Sao chép link"</strong> bên dưới</div></div>' +
+      '<div class="ia-step"><div class="n">2</div><div>Mở <strong>Chrome</strong> hoặc <strong>Safari</strong> trên điện thoại</div></div>' +
+      '<div class="ia-step"><div class="n">3</div><div>Dán link vào thanh địa chỉ và truy cập</div></div>';
+  }
+
+  document.getElementById('ia-steps').innerHTML = stepsHTML;
+  document.getElementById('inapp-overlay').classList.add('show');
+})();
+
+function copyAndOpenLink(){
+  var url = window.location.href;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){
+      document.getElementById('ia-copy-btn').textContent = '✅ Đã sao chép! Mở Chrome/Safari và dán vào';
+    });
+  } else {
+    // fallback
+    var ta = document.createElement('textarea');
+    ta.value = url; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+    document.getElementById('ia-copy-btn').textContent = '✅ Đã sao chép! Mở Chrome/Safari và dán vào';
+  }
+}
+
 function getCheck(val, expected){ return val===expected ? '\u2611' : '\u2610'; }
 
 function collectData(){
